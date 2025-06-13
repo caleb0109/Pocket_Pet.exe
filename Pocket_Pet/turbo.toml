@@ -1,8 +1,8 @@
 name = "Pocket_Pet"
 version = "0.1.0"
-description = "An awesome game made in Turbo!"
-authors = ["Anonymous"]
+description = "A virtual pet sim that wants your money"
+authors = ["Caleb Jeon and Anna Shimizu"]
 
 [canvas]
-width = 256
-height = 144
+width = 240
+height = 160
