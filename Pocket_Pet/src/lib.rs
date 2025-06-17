@@ -1,6 +1,8 @@
 // This is where your main game loop code goes
 // The stuff in this block will run ~60x per sec
 
+use std::string;
+
 turbo::init!{
     struct GameState{
         // screen: enum Scene {
@@ -22,11 +24,11 @@ turbo::init!{
 
     } = Self {
         //screen: Main,
-        food: UIButton::new("Give Food",(200, 120, 20, 20)),
-        shower: UIButton::new("Give Shower", (160, 120, 20, 20)),
-        work: UIButton::new("Go to Work", (120, 120, 20, 20)),
-        allowance: UIButton::new("Give Money", (80, 120, 20, 20)),
-        sleep: UIButton::new("Go to Sleep", (40, 120, 20, 20)),
+        food: UIButton::new("Give Food",(200, 120, 20, 20),"food"),
+        shower: UIButton::new("Give Shower", (160, 120, 20, 20),"shower"),
+        work: UIButton::new("Go to Work", (120, 120, 20, 20),"work"),
+        allowance: UIButton::new("Give Money", (80, 120, 20, 20),"allowance"),
+        sleep: UIButton::new("Go to Sleep", (40, 120, 20, 20),"sleep"),
         due_date: 14,
         day: 0,
         account: 0,
@@ -67,15 +69,17 @@ pub struct UIButton {
     pub text: String,
     pub hovered: bool,
     pub count: u32,
+    pub action: String,
 }
 
 impl UIButton {
-    pub fn new (text: &str, hitbox: (i32, i32, i32, i32)) -> Self {
+    pub fn new (text: &str, hitbox: (i32, i32, i32, i32), act: &str) -> Self {
         Self {
             hitbox, // x, y, w, h
             text: text.to_string(), // button text
             hovered: false, // hover state
             count: 0, // checking if click works or not
+            action: act.to_string(),
         }
     }
 
@@ -95,7 +99,7 @@ impl UIButton {
         rect!(x = self.hitbox.0, y = self.hitbox.1, w = self.hitbox.2, h = self.hitbox.3, color = c1);
         // Draw text
         text!(&self.text, x = x, y = y, color = c2);
-        text!("{:?}", self.count; x = 0, y = 0, color = c2);
+        text!("{:?}", self.count; x = x + 25, y = y - 20, color = c2);
     }
     
     //checks if the mouse is hovering the button or not
@@ -109,6 +113,8 @@ impl UIButton {
             }
         }
     }
+
+
 }
 
 pub trait Clickable {
@@ -140,6 +146,18 @@ impl Clickable for UIButton {
 
     //counts click
     fn click(&mut self) {
-        self.count += 1; 
+        //clones the string of the specific action the user pressed on
+        let act= self.action.clone();
+        //does a match(switch statement) that checks which action is chosen
+        match act.as_str() {
+            "food" => {
+                self.count += 1;
+            },
+            "shower" => self.count += 1,
+            "work" => self.count += 1,
+            "allowance" => self.count += 1,
+            //"sleep" => self.count = 0,
+            _ => self.count = 0,
+        }
     }
 }
