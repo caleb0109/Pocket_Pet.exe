@@ -89,7 +89,7 @@ turbo::go!({
     text!("Money: {:?}", state.player.account; x = 0, y = 0);
     text!("Activity: {:?}", state.player.activity; x = 0, y = 10);
     text!("Affection: {:?}", state.player.affection; x = 45, y = 0);
-
+    text!("Day: {:?}", state.player.day; x = 200, y = 0);
     // Save GameState
     state.save();
 });
