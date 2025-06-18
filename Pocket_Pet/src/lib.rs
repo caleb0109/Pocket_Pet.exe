@@ -7,36 +7,47 @@ turbo::init!{
         //     Main,
         //     Social,
         // },
-        food: UIButton,
-        shower: UIButton,
-        work: UIButton,
-        allowance: UIButton,
-        sleep: UIButton,
+        food: ActionButton,
+        shower: ActionButton,
+        work: ActionButton,
+        allowance: ActionButton,
+        sleep: ActionButton,
         player: PlayerAction,
+        select: (i32,i32),
         toggle: bool,
 
     } = Self {
         //screen: Main,
-        food: UIButton::new("Give Food",(200, 120, 20, 20),false),
-        shower: UIButton::new("Give Shower", (160, 120, 20, 20),false),
-        work: UIButton::new("Go to Work", (120, 120, 20, 20),false),
-        allowance: UIButton::new("Give Money", (80, 120, 20, 20),false),
-        sleep: UIButton::new("Go to Sleep", (40, 120, 20, 20),false),
+        food: ActionButton::new("Give Food",(200, 120, 20, 20),false),
+        shower: ActionButton::new("Give Shower", (160, 120, 20, 20),false),
+        work: ActionButton::new("Go to Work", (120, 120, 20, 20),false),
+        allowance: ActionButton::new("Give Money", (80, 120, 20, 20),false),
+        sleep: ActionButton::new("Go to Sleep", (40, 120, 20, 20),false),
         player: PlayerAction::new(),
+        select: (200,120),
         toggle: false,
     }
 }
 
 turbo::go!({
     let mut state = GameState::load();
-
+    
+    //checks if left or right has been inputted and if it has
+    //then it moves the selected variable properly
+    let gp = gamepad(0);
+    if gp.left.just_pressed() {
+        state.select.0 -= 40;
+    }
+    if gp.right.just_pressed() {
+        state.select.0 += 40;
+    }
     //gets mouse
     //checks 
-    state.food.check();
-    state.shower.check();
-    state.work.check();
-    state.allowance.check();
-    state.sleep.check();
+    state.food.check(state.select);
+    state.shower.check(state.select);
+    state.work.check(state.select);
+    state.allowance.check(state.select);
+    state.sleep.check(state.select);
 
 
 
@@ -94,22 +105,20 @@ turbo::go!({
 });
 
 #[derive(Debug, Clone, PartialEq, BorshDeserialize, BorshSerialize)]
-pub struct UIButton {
+pub struct ActionButton {
     pub hitbox: (i32, i32, i32, i32),
     pub text: String,
     pub hovered: bool,
-    pub count: u32,
     pub action: bool,
     pub luxary: bool,
 }
 
-impl UIButton {
+impl ActionButton {
     pub fn new (text: &str, hitbox: (i32, i32, i32, i32), act: bool) -> Self {
         Self {
             hitbox, // x, y, w, h
             text: text.to_string(), // button text
             hovered: false, // hover state
-            count: 0, // checking if click works or not
             action: act, //checks if specific button was pressed or not
             luxary: false,
         }
@@ -134,15 +143,24 @@ impl UIButton {
     }
     
     //checks if the mouse is hovering the button or not
-    pub fn check(&mut self) {
+    pub fn check(&mut self, mut select: (i32,i32)) {
         //gets the mouses world space position (its x and y on screen)
         let m = pointer();
         let(mx, my) = m.xy();
         //gets gamepad player 1
         let gp = gamepad(0);
+
         if let Some(b) = self.hover(self.hitbox, mx, my) {
-            // Check if mouse clicked on button or is z is pressed
-            if m.just_pressed()||gp.a.just_pressed(){
+            // Check if mouse clicked
+            select.0 = b.hitbox.0;
+            if m.just_pressed(){
+                b.click(); // Call function local to button
+            }
+        }
+        //made copy of if statement to check if selected is hovering
+        if let Some(b) = self.hover(self.hitbox, select.0, select.1) {
+            // Check if button is pressed (press z)
+            if gp.a.just_pressed(){
                 b.click(); // Call function local to button
             }
         }
@@ -170,7 +188,7 @@ pub trait Clickable {
 }
 
 // Implement Clickable for UIButton and override private functionality
-impl Clickable for UIButton {
+impl Clickable for ActionButton {
     // Toggle hover state
     fn hover_state(&mut self, hover: bool) {
         self.hovered = hover; 
@@ -214,7 +232,7 @@ impl PlayerAction {
         }
     }
     
-    pub fn feed_or_shower(&mut self, button: &UIButton, identify: &str){
+    pub fn feed_or_shower(&mut self, button: &ActionButton, identify: &str){
         let mut cost = 1;
         if self.active_check() {
             if button.luxary {
@@ -273,6 +291,5 @@ impl PlayerAction {
         } else {
             return;
         }
-        
     }
 }
