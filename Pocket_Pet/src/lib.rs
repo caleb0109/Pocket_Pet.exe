@@ -18,19 +18,11 @@ turbo::init!{
 
     } = Self {
         //screen: Main,
-<<<<<<< HEAD
         food: ActionButton::new("Give Food",(200, 120, 20, 20),false),
         shower: ActionButton::new("Give Shower", (160, 120, 20, 20),false),
         work: ActionButton::new("Go to Work", (120, 120, 20, 20),false),
         allowance: ActionButton::new("Give Money", (80, 120, 20, 20),false),
         sleep: ActionButton::new("Go to Sleep", (40, 120, 20, 20),false),
-=======
-        food: UIButton::new("food",(64, 114, 34, 34),false),
-        shower: UIButton::new("shower", (103, 114, 34, 34),false),
-        work: UIButton::new("work", (25, 114, 34, 34),false),
-        allowance: UIButton::new("allowance", (142, 114, 34, 34),false),
-        sleep: UIButton::new("sleep", (181, 114, 34, 34),false),
->>>>>>> fb7f9a25df40152dfccd046cfb6d238b0cbefea3
         player: PlayerAction::new(),
         select: (200,120),
         toggle: false,
@@ -104,7 +96,6 @@ turbo::go!({
     state.allowance.draw();
     state.sleep.draw();
 
-
     text!("Money: {:?}", state.player.account; x = 0, y = 0);
     text!("Activity: {:?}", state.player.activity; x = 0, y = 10);
     text!("Affection: {:?}", state.player.affection; x = 45, y = 0);
@@ -135,12 +126,20 @@ impl ActionButton {
 
     //draws the button onto the screen
     pub fn draw(&self) {
-        //draws button and highlighted button
-        let highlight = format!("{}_highlight", &self.text);
-        match self.hovered {
-            true => sprite!(&highlight, x = self.hitbox.0 - 1, y = self.hitbox.1 - 1),
-            false => sprite!(&self.text, x = self.hitbox.0, y = self.hitbox.1)
+        // sets the color of the button
+        let (c1, c2): (u32, u32) = match self.hovered {
+            true => (0x323b42ff, 0xffffffff),
+            false => (0xffffffff, 0x323b42ff)
         };
+        // Calculate text offset for centering onto button
+        let (x, y) = 
+            (self.hitbox.0 + (self.hitbox.2/2) - (self.text.len() as f32 * 2.5) as i32, 
+            self.hitbox.1 + (self.hitbox.3/2) - 3);
+
+        // Draw button
+        rect!(x = self.hitbox.0, y = self.hitbox.1, w = self.hitbox.2, h = self.hitbox.3, color = c1);
+        // Draw text
+        text!(&self.text, x = x, y = y, color = c2);
     }
     
     //checks if the mouse is hovering the button or not
@@ -157,14 +156,14 @@ impl ActionButton {
             if m.just_pressed(){
                 b.click(); // Call function local to button
             }
-        }
-        //made copy of if statement to check if selected is hovering
-        if let Some(b) = self.hover(self.hitbox, select.0, select.1) {
+        } else if let Some(b) = self.hover(self.hitbox, select.0, select.1) {
             // Check if button is pressed (press z)
             if gp.a.just_pressed(){
                 b.click(); // Call function local to button
             }
         }
+        //made copy of if statement to check if selected is hovering
+        
     }
 }
 
