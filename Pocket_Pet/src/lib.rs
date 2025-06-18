@@ -24,7 +24,7 @@ turbo::init!{
         allowance: ActionButton::new("allowance", (142, 114, 34, 34),false),
         sleep: ActionButton::new("sleep", (181, 114, 34, 34),false),
         player: PlayerAction::new(),
-        select: (200,120),
+        select: (25,114),
         toggle: false,
     }
 }
@@ -36,18 +36,31 @@ turbo::go!({
     //then it moves the selected variable properly
     let gp = gamepad(0);
     if gp.left.just_pressed() {
-        state.select.0 -= 40;
+        //makes sure that the select doesn't go off the buttonsto the far left
+        if state.select.0 <= 25 {
+            state.select.0 = 25;
+        } else {
+            state.select.0 -= 39; //why is it 39 pixel diff ;-;
+        }
     }
     if gp.right.just_pressed() {
-        state.select.0 += 40;
+        //makes sure that the select doesn't go off the buttonsto the far right
+        if state.select.0 >= 181 {
+            state.select.0 = 181
+        } else {
+            state.select.0 += 39;
+        }
     }
+
+    
     //gets mouse
-    //checks 
-    state.food.check(state.select);
-    state.shower.check(state.select);
-    state.work.check(state.select);
-    state.allowance.check(state.select);
-    state.sleep.check(state.select);
+    //sets the select to the location that is being highlighted either by mouse or keyboard
+    //i'll look into cleaning this up tomorrow
+    state.select.0 = state.food.check(state.select);
+    state.select.0 = state.shower.check(state.select);
+    state.select.0 = state.work.check(state.select);
+    state.select.0 = state.allowance.check(state.select);
+    state.select.0 = state.sleep.check(state.select);
 
 
 
@@ -135,7 +148,7 @@ impl ActionButton {
     }
     
     //checks if the mouse is hovering the button or not
-    pub fn check(&mut self, mut select: (i32,i32)) {
+    pub fn check(&mut self, mut select: (i32,i32)) -> i32{
         //gets the mouses world space position (its x and y on screen)
         let m = pointer();
         let(mx, my) = m.xy();
@@ -143,16 +156,23 @@ impl ActionButton {
         let gp = gamepad(0);
 
         if let Some(b) = self.hover(self.hitbox, mx, my) {
-            // Check if mouse clicked
-            select.0 = b.hitbox.0;
             if m.just_pressed(){
                 b.click(); // Call function local to button
+                return b.hitbox.0;
+            }else {
+                return b.hitbox.0;
             }
-        } else if let Some(b) = self.hover(self.hitbox, select.0, select.1) {
+        } 
+        if let Some(b) = self.hover(self.hitbox, select.0, select.1) {
             // Check if button is pressed (press z)
             if gp.a.just_pressed(){
                 b.click(); // Call function local to button
+                return b.hitbox.0;
+            }else {
+                return b.hitbox.0;
             }
+        } else {
+            return select.0;
         }
         //made copy of if statement to check if selected is hovering
         
