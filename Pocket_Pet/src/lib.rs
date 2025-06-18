@@ -24,11 +24,11 @@ turbo::init!{
 
     } = Self {
         //screen: Main,
-        food: UIButton::new("Give Food",(200, 120, 20, 20),"food"),
-        shower: UIButton::new("Give Shower", (160, 120, 20, 20),"shower"),
-        work: UIButton::new("Go to Work", (120, 120, 20, 20),"work"),
-        allowance: UIButton::new("Give Money", (80, 120, 20, 20),"allowance"),
-        sleep: UIButton::new("Go to Sleep", (40, 120, 20, 20),"sleep"),
+        food: UIButton::new("Give Food",(200, 120, 20, 20),false),
+        shower: UIButton::new("Give Shower", (160, 120, 20, 20),false),
+        work: UIButton::new("Go to Work", (120, 120, 20, 20),false),
+        allowance: UIButton::new("Give Money", (80, 120, 20, 20),false),
+        sleep: UIButton::new("Go to Sleep", (40, 120, 20, 20),false),
         due_date: 14,
         day: 0,
         account: 0,
@@ -43,14 +43,44 @@ turbo::go!({
     let mut state = GameState::load();
 
     //gets mouse
-    let m = pointer();
-
     //checks 
-    state.food.check(m);
-    state.shower.check(m);
-    state.work.check(m);
-    state.allowance.check(m);
-    state.sleep.check(m);
+    state.food.check();
+    state.shower.check();
+    state.work.check();
+    state.allowance.check();
+    state.sleep.check();
+
+    let acted: [bool; 5] = [
+        state.food.action,
+        state.shower.action,
+        state.work.action,
+        state.allowance.action,
+        state.sleep.action];
+
+    for n in 0..5 {
+        if acted[n]{
+            match n {
+                0 => {
+                    text!("food", x = 20, y = 40);
+                }
+                1 => {
+                    text!("shower", x = 20, y = 40);
+                }
+                2 => {
+                    text!("work", x = 20, y = 40);
+                }
+                3 => {
+                    text!("allowance", x = 20, y = 40);
+                }
+                4 => {
+                    text!("sleep", x = 20, y = 40);
+                }
+                _ => {
+                    text!("didn't work", x = 30, y = 40);
+                }
+            }
+        }
+    }
     
     // Draw
     state.food.draw();
@@ -69,17 +99,17 @@ pub struct UIButton {
     pub text: String,
     pub hovered: bool,
     pub count: u32,
-    pub action: String,
+    pub action: bool,
 }
 
 impl UIButton {
-    pub fn new (text: &str, hitbox: (i32, i32, i32, i32), act: &str) -> Self {
+    pub fn new (text: &str, hitbox: (i32, i32, i32, i32), act: bool) -> Self {
         Self {
             hitbox, // x, y, w, h
             text: text.to_string(), // button text
             hovered: false, // hover state
             count: 0, // checking if click works or not
-            action: act.to_string(),
+            action: act,
         }
     }
 
@@ -103,12 +133,14 @@ impl UIButton {
     }
     
     //checks if the mouse is hovering the button or not
-    pub fn check(&mut self, mouse: Pointer) {
+    pub fn check(&mut self) {
         //gets the mouses world space position (its x and y on screen)
-        let(mx, my) = mouse.xy();
+        let m = pointer();
+        let(mx, my) = m.xy();
+        let gp = gamepad(0);
         if let Some(b) = self.hover(self.hitbox, mx, my) {
             // Check if mouse clicked on button
-            if mouse.just_pressed() {
+            if m.just_pressed()||gp.a.just_pressed(){
                 b.click(); // Call function local to button
             }
         }
@@ -146,18 +178,7 @@ impl Clickable for UIButton {
 
     //counts click
     fn click(&mut self) {
-        //clones the string of the specific action the user pressed on
-        let act= self.action.clone();
-        //does a match(switch statement) that checks which action is chosen
-        match act.as_str() {
-            "food" => {
-                self.count += 1;
-            },
-            "shower" => self.count += 1,
-            "work" => self.count += 1,
-            "allowance" => self.count += 1,
-            //"sleep" => self.count = 0,
-            _ => self.count = 0,
-        }
+        self.count += 1;
+        self.action = true;
     }
 }
