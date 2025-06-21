@@ -15,6 +15,7 @@ turbo::init!{
         player: PlayerAction,
         select: (i32,i32),
         toggle: bool,
+        frame: u32
 
     } = Self {
         //screen: Main,
@@ -26,6 +27,7 @@ turbo::init!{
         player: PlayerAction::new(),
         select: (25,114),
         toggle: false,
+        frame : 0
     }
 }
 
@@ -101,18 +103,35 @@ turbo::go!({
             }
         }
     }
-    
-    // Draw
+       
+//Background elements
+    clear(0xfae3deff);
+    let frame = (state.frame as i32) / 2;
+    for col in 0..16 {
+        for row in 0..9 {
+            let x = col * 18;
+            let y = (row * 18 + frame) % (160);
+            sprite!("dot", x = x, y = y);
+        }
+    }
+    state.frame += 1;
+
+//Screen
+    sprite!("screen", x = 24, y = 19);
+    let day = state.player.day.to_string();
+    text!("Day {}", &day; x = 29, y = 105, color = 0x22406eff, font = "small");
+
+// Draw
     state.food.draw();
     state.shower.draw();
     state.work.draw();
     state.allowance.draw();
     state.sleep.draw();
 
-    text!("Money: {:?}", state.player.account; x = 0, y = 0);
-    text!("Activity: {:?}", state.player.activity; x = 0, y = 10);
-    text!("Affection: {:?}", state.player.affection; x = 45, y = 0);
-    text!("Day: {:?}", state.player.day; x = 200, y = 0);
+    text!("Money: {:?}", state.player.account; x = 0, y = 0, color = 0x22406eff);
+    text!("Activity: {:?}", state.player.activity; x = 0, y = 10, color = 0x22406eff);
+    text!("Affection: {:?}", state.player.affection; x = 45, y = 0, color = 0x22406eff);
+    text!("Day: {:?}", state.player.day; x = 200, y = 0, color = 0x22406eff);
     // Save GameState
     state.save();
 });
