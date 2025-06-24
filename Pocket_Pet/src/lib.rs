@@ -7,6 +7,7 @@ turbo::init!{
         //     Main,
         //     Social,
         // },
+        pipi: ActionButton,
         food: ActionButton,
         shower: ActionButton,
         work: ActionButton,
@@ -19,6 +20,7 @@ turbo::init!{
 
     } = Self {
         //screen: Main,
+        pipi: ActionButton::new("PIPI",(90, 30, 60, 69),false),
         food: ActionButton::new("food",(64, 114, 34, 34),false),
         shower: ActionButton::new("shower", (103, 114, 34, 34),false),
         work: ActionButton::new("work", (25, 114, 34, 34),false),
@@ -58,6 +60,7 @@ turbo::go!({
     //gets mouse
     //sets the select to the location that is being highlighted either by mouse or keyboard
     //i'll look into cleaning this up tomorrow
+    state.select.0 = state.pipi.check(state.select);
     state.select.0 = state.food.check(state.select);
     state.select.0 = state.shower.check(state.select);
     state.select.0 = state.work.check(state.select);
@@ -66,15 +69,16 @@ turbo::go!({
 
 
 
-    let acted: [bool; 5] = [
+    let acted: [bool; 6] = [
         state.food.action,
         state.shower.action,
         state.work.action,
         state.allowance.action,
-        state.sleep.action];
+        state.sleep.action,
+        state.pipi.action];
 
 
-    for n in 0..5 {
+    for n in 0..6 {
         if acted[n]{
             match n {
                 0 => {
@@ -96,6 +100,9 @@ turbo::go!({
                 4 => {
                     state.player.go_sleep();
                     state.sleep.action = false;
+                }
+                5 => {
+                    state.pipi.action = false;
                 }
                 _ => {
                     text!("didn't work", x = 30, y = 40);
@@ -121,6 +128,9 @@ turbo::go!({
     let day = state.player.day.to_string();
     text!("Day {}", &day; x = 29, y = 105, color = 0x22406eff, font = "small");
 
+//Summon Pipi
+    state.pipi.summon();
+
 // Draw
     state.food.draw();
     state.shower.draw();
@@ -143,6 +153,7 @@ pub struct ActionButton {
     pub hovered: bool,
     pub action: bool,
     pub luxary: bool,
+    pub count: u32,
 }
 
 impl ActionButton {
@@ -153,6 +164,7 @@ impl ActionButton {
             hovered: false, // hover state
             action: act, //checks if specific button was pressed or not
             luxary: false,
+            count: 0,
         }
     }
 
@@ -164,6 +176,34 @@ impl ActionButton {
             true => sprite!(&highlight, x = self.hitbox.0 - 1, y = self.hitbox.1 - 1),
             false => sprite!(&self.text, x = self.hitbox.0, y = self.hitbox.1)
         };
+    }
+
+    //summons pipi (draw function only used by pipi)
+    pub fn summon(&mut self) {
+        
+        let anim = animation::get("PIPI");
+        if self.hovered {
+            anim.use_sprite("PIPI#WAVE");
+            anim.set_repeat(1);
+            self.count += 1;
+        }
+        
+        if self.count > 5 {
+            anim.use_sprite("PIPI#FLIP_good");
+            anim.set_repeat(1);
+            self.count = 0;
+        }
+
+        sprite!(
+            animation_key = "PIPI",
+            default_sprite = "PIPI#HAPPY_good", x = self.hitbox.0, y = self.hitbox.1
+        );
+
+
+        // match self.hovered {
+        //     true => sprite!("PIPI#WAVE", x = self.hitbox.0, y = self.hitbox.1),
+        //     false => sprite!("PIPI#HAPPY_good", x = self.hitbox.0, y = self.hitbox.1)
+        // };
     }
     
     //checks if the mouse is hovering the button or not
