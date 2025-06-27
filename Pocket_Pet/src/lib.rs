@@ -1,5 +1,12 @@
 // This is where your main game loop code goes
 // The stuff in this block will run ~60x per sec
+use turbo::prelude::*;
+mod button;
+mod player;
+mod social_media;
+
+use player::Player;
+use button::ActionButton;
 
 turbo::init!{
     struct GameState{
@@ -13,7 +20,7 @@ turbo::init!{
         work: ActionButton,
         allowance: ActionButton,
         sleep: ActionButton,
-        player: PlayerAction,
+        player: Player,
         select: (i32,i32),
         toggle: bool,
         frame: u32
@@ -26,7 +33,7 @@ turbo::init!{
         work: ActionButton::new("work", (25, 114, 34, 34),false),
         allowance: ActionButton::new("allowance", (142, 114, 34, 34),false),
         sleep: ActionButton::new("sleep", (181, 114, 34, 34),false),
-        player: PlayerAction::new(),
+        player: Player::new(),
         select: (25,114),
         toggle: false,
         frame : 0
@@ -68,7 +75,7 @@ turbo::go!({
     state.select.0 = state.sleep.check(state.select);
 
 
-
+    //gathers buttons to see if it was pressed or not
     let acted: [bool; 6] = [
         state.food.action,
         state.shower.action,
@@ -78,15 +85,16 @@ turbo::go!({
         state.pipi.action];
 
 
+    //goes through for loop to see which button was pressed
     for n in 0..6 {
         if acted[n]{
             match n {
                 0 => {
-                    state.player.feed_or_shower(&state.food, "food");
+                    state.player.feed_or_shower(state.food.luxary);
                     state.food.action = false;
                 }
                 1 => {
-                    state.player.feed_or_shower(&state.shower, "shower");
+                    state.player.feed_or_shower(state.shower.luxary);
                     state.shower.action = false;
                 }
                 2 => {
@@ -145,222 +153,3 @@ turbo::go!({
     // Save GameState
     state.save();
 });
-
-#[derive(Debug, Clone, PartialEq, BorshDeserialize, BorshSerialize)]
-pub struct ActionButton {
-    pub hitbox: (i32, i32, i32, i32),
-    pub text: String,
-    pub hovered: bool,
-    pub action: bool,
-    pub luxary: bool,
-    pub count: u32,
-}
-
-impl ActionButton {
-    pub fn new (text: &str, hitbox: (i32, i32, i32, i32), act: bool) -> Self {
-        Self {
-            hitbox, // x, y, w, h
-            text: text.to_string(), // button text
-            hovered: false, // hover state
-            action: act, //checks if specific button was pressed or not
-            luxary: false,
-            count: 0,
-        }
-    }
-
-    //draws the button onto the screen
-    pub fn draw(&self) {
-        //draws button and highlighted button
-        let highlight = format!("{}_highlight", &self.text);
-        match self.hovered {
-            true => sprite!(&highlight, x = self.hitbox.0 - 1, y = self.hitbox.1 - 1),
-            false => sprite!(&self.text, x = self.hitbox.0, y = self.hitbox.1)
-        };
-    }
-
-    //summons pipi (draw function only used by pipi)
-    pub fn summon(&mut self) {
-        
-        let anim = animation::get("PIPI");
-        if self.hovered {
-            anim.use_sprite("PIPI#WAVE");
-            anim.set_repeat(1);
-            self.count += 1;
-        }
-        
-        if self.count > 5 {
-            anim.use_sprite("PIPI#FLIP_good");
-            anim.set_repeat(1);
-            self.count = 0;
-        }
-
-        sprite!(
-            animation_key = "PIPI",
-            default_sprite = "PIPI#HAPPY_good", x = self.hitbox.0, y = self.hitbox.1
-        );
-
-
-        // match self.hovered {
-        //     true => sprite!("PIPI#WAVE", x = self.hitbox.0, y = self.hitbox.1),
-        //     false => sprite!("PIPI#HAPPY_good", x = self.hitbox.0, y = self.hitbox.1)
-        // };
-    }
-    
-    //checks if the mouse is hovering the button or not
-    pub fn check(&mut self, mut select: (i32,i32)) -> i32{
-        //gets the mouses world space position (its x and y on screen)
-        let m = pointer();
-        let(mx, my) = m.xy();
-        //gets gamepad player 1
-        let gp = gamepad(0);
-
-        if let Some(b) = self.hover(self.hitbox, mx, my) {
-            if m.just_pressed(){
-                b.click(); // Call function local to button
-                return b.hitbox.0;
-            }else {
-                return b.hitbox.0;
-            }
-        } 
-        if let Some(b) = self.hover(self.hitbox, select.0, select.1) {
-            // Check if button is pressed (press z)
-            if gp.a.just_pressed(){
-                b.click(); // Call function local to button
-                return b.hitbox.0;
-            }else {
-                return b.hitbox.0;
-            }
-        } else {
-            return select.0;
-        }
-        //made copy of if statement to check if selected is hovering
-        
-    }
-}
-
-pub trait Clickable {
-    // checks if mouse is actually hovering over the button or not
-    fn hover(&mut self, hitbox: (i32, i32, i32, i32), mx: i32, my: i32) -> Option<&mut Self> {
-        if mx >= hitbox.0 && mx <= hitbox.0 + hitbox.2
-        && my >= hitbox.1 && my <= hitbox.1 + hitbox.3 {
-            Clickable::hover_state(self, true);
-            return Some(self)
-        } else {
-            Clickable::hover_state(self, false);
-            return None
-        }
-    }
-
-    // Private function for toggling hover state
-    fn hover_state(&mut self, hover: bool) {}
-
-    // Private function for registering clicks on button
-    fn click(&mut self) {}
-}
-
-// Implement Clickable for UIButton and override private functionality
-impl Clickable for ActionButton {
-    // Toggle hover state
-    fn hover_state(&mut self, hover: bool) {
-        self.hovered = hover; 
-    }
-
-    //counts click
-    fn click(&mut self) {
-        //turns action true
-        self.action = true;
-    }
-}
-
-#[derive(Debug, Clone, PartialEq, BorshDeserialize, BorshSerialize)]
-pub struct PlayerAction{
-    pub due_date: i32,
-    pub day: i32,
-    pub account: i32,
-    pub salary: i32,
-    pub activity: i32,
-    pub affection: i32,
-}
-
-impl PlayerAction {
-    pub fn new()-> Self {
-        Self{
-            due_date: 14,
-            day: 0,
-            account: 4,
-            salary: 3,
-            activity: 3,
-            affection: 0,
-        }
-    }
-
-    pub fn active_check(&self) -> bool {
-        if self.activity >= 1{
-            return true;
-        } else {
-            text!("Don't have enough activity points", x = 10, y= 20);
-            return false;
-        }
-    }
-    
-    pub fn feed_or_shower(&mut self, button: &ActionButton, identify: &str){
-        let mut cost = 1;
-        if self.active_check() {
-            if button.luxary {
-                cost = 2;
-            }
-            if self.account >= cost {
-                self.account -= cost;
-                self.activity -= 1;
-                if identify == "food" {
-                    text!("Yummy!", x = 10, y= 20);
-                } else if identify == "shower" {
-                    text!("So clean!", x = 10, y= 20);
-                }
-            } else {
-                text!("Don't have enough money", x = 10, y= 20);
-                return;
-            }
-
-        } else {
-            return;
-        }
-    }
-
-    pub fn working(&mut self){
-        let cap = 5;
-        if self.active_check() {
-            self.account += self.salary;
-            self.activity -= 1;
-            text!("WORKING", x = 10, y= 20);
-            if self.account > cap {
-                self.account = 5;
-            }
-        } else {
-            return;
-        }
-    }
-
-    pub fn go_sleep(&mut self){
-        self.activity = 3;
-        self.day += 1;
-        text!("eepy time!", x = 10, y= 20);
-    }
-
-    pub fn allowance(&mut self){
-        let cost = 2;
-        if self.active_check() {
-            if self.account >= cost {
-                self.account -= cost;
-                self.affection += 10;
-                self.activity -= 1;
-                text!("Thanks for the allowance!", x = 10, y= 20);
-            } else {
-                text!("Don't have enough money", x = 10, y= 20);
-                return;
-            }
-        } else {
-            return;
-        }
-    }
-}
