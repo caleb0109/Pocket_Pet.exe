@@ -1,42 +1,49 @@
 // This is where your main game loop code goes
 // The stuff in this block will run ~60x per sec
-use turbo::prelude::*;
 mod button;
 mod player;
 mod social_media;
 
+use std::collections::HashMap;
 use player::Player;
 use button::ActionButton;
 
 turbo::init!{
     struct GameState{
-        // screen: enum Scene {
-        //     Main,
-        //     Social,
-        // },
+        screen: enum Scene {
+            Main,
+            Social,
+        },
         pipi: ActionButton,
         food: ActionButton,
         shower: ActionButton,
         work: ActionButton,
         allowance: ActionButton,
         sleep: ActionButton,
+        sm: ActionButton,
         player: Player,
         select: (i32,i32),
         toggle: bool,
-        frame: u32
+        frame: u32,
+        tweens:HashMap<String, Tween<f32>>
 
     } = Self {
-        //screen: Main,
+        screen: Scene::Main,
         pipi: ActionButton::new("PIPI",(90, 30, 60, 69),false),
         food: ActionButton::new("food",(64, 114, 34, 34),false),
         shower: ActionButton::new("shower", (103, 114, 34, 34),false),
         work: ActionButton::new("work", (25, 114, 34, 34),false),
         allowance: ActionButton::new("allowance", (142, 114, 34, 34),false),
         sleep: ActionButton::new("sleep", (181, 114, 34, 34),false),
+        sm: ActionButton::new("social media", (20, 30, 20, 20), false),
         player: Player::new(),
         select: (25,114),
         toggle: false,
-        frame : 0
+        frame : 0,
+        tweens: HashMap::from([
+            ("social_media_change".to_string(), Tween::new(0.)),
+            ("main_screen_change".to_string(), Tween::new(0.)),
+        ])
     }
 }
 
