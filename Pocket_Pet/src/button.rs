@@ -9,7 +9,7 @@ pub struct ActionButton {
     pub text: String,
     pub hovered: bool,
     pub action: bool,
-    pub luxary: bool,
+    pub luxury: bool,
     pub count: u32,
 }
 
@@ -20,7 +20,7 @@ impl ActionButton {
             text: text.to_string(), // button text
             hovered: false, // hover state
             action: act, //checks if specific button was pressed or not
-            luxary: false,
+            luxury: false,
             count: 0,
         }
     }

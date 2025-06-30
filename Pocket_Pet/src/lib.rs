@@ -97,11 +97,11 @@ turbo::go!({
         if acted[n]{
             match n {
                 0 => {
-                    state.player.feed_or_shower(state.food.luxary);
+                    state.player.feed_or_shower(state.food.luxury);
                     state.food.action = false;
                 }
                 1 => {
-                    state.player.feed_or_shower(state.shower.luxary);
+                    state.player.feed_or_shower(state.shower.luxury);
                     state.shower.action = false;
                 }
                 2 => {
@@ -157,6 +157,7 @@ turbo::go!({
     text!("Activity: {:?}", state.player.activity; x = 0, y = 10, color = 0x22406eff);
     text!("Affection: {:?}", state.player.affection; x = 45, y = 0, color = 0x22406eff);
     text!("Day: {:?}", state.player.day; x = 200, y = 0, color = 0x22406eff);
+    text!("Pipi count: {:?}", state.pipi.count; x = 165, y = 10, color = 0x22406eff);
     // Save GameState
     state.save();
 });
