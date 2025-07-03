@@ -160,11 +160,7 @@ turbo::go!({
     text!("Activity: {:?}", state.player.activity; x = 0, y = 10, color = 0x22406eff);
     text!("Affection: {:?}", state.player.affection; x = 45, y = 0, color = 0x22406eff);
     text!("Day: {:?}", state.player.day; x = 200, y = 0, color = 0x22406eff);
-<<<<<<< HEAD
-    text!("Count: {:?}", state.pipi.count; x = 200, y = 10, color = 0x22406eff);
-=======
     text!("Pipi count: {:?}", state.pipi.count; x = 165, y = 10, color = 0x22406eff);
->>>>>>> 864b3e2c5167ce55f4a93e1db605c0536aed15ba
     // Save GameState
     state.save();
 });

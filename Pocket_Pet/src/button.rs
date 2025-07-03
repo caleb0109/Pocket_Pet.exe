@@ -77,7 +77,6 @@ impl ActionButton {
         
     }
 
-<<<<<<< HEAD
     //checks if mouse clicked pipi
     pub fn pipiselect(&mut self) -> bool {
         let m = pointer();
@@ -92,12 +91,6 @@ impl ActionButton {
         }else {
             return false;
         }
-=======
-        // match self.hovered {
-        //     true => sprite!("PIPI#WAVE", x = self.hitbox.0, y = self.hitbox.1),
-        //     false => sprite!("PIPI#HAPPY_good", x = self.hitbox.0, y = self.hitbox.1)
-        // };
->>>>>>> 864b3e2c5167ce55f4a93e1db605c0536aed15ba
     }
     
     //checks if the mouse is hovering the button or not
@@ -150,6 +143,6 @@ impl ActionButton {
             return false;
         }
     }
-
-    
 }
+    
+
