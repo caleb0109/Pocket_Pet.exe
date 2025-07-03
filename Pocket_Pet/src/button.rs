@@ -37,12 +37,12 @@ impl ActionButton {
 
     //summons pipi (draw function only used by pipi)
     pub fn summon(&mut self) {
-        
+        let selected = self.pipiselect();
         let anim = animation::get("PIPI");
-        if self.hovered {
+        if selected {
             anim.use_sprite("PIPI#WAVE");
-            anim.set_repeat(1);
-            self.count += 1;
+            anim.set_repeat(1);               
+            self.count += 1;   
         }
         
         if self.count > 5 {
@@ -55,12 +55,23 @@ impl ActionButton {
             animation_key = "PIPI",
             default_sprite = "PIPI#HAPPY_good", x = self.hitbox.0, y = self.hitbox.1
         );
+        
+    }
 
-
-        // match self.hovered {
-        //     true => sprite!("PIPI#WAVE", x = self.hitbox.0, y = self.hitbox.1),
-        //     false => sprite!("PIPI#HAPPY_good", x = self.hitbox.0, y = self.hitbox.1)
-        // };
+    //checks if mouse clicked pipi
+    pub fn pipiselect(&mut self) -> bool {
+        let m = pointer();
+        let (mx, my) = m.xy();
+        if self.hover(self.hitbox, mx, my) {
+            if m.just_pressed() {
+                self.action = true;
+                return true;
+            }else {
+                return false;
+            }
+        }else {
+            return false;
+        }
     }
     
     //checks if the mouse is hovering the button or not
@@ -84,6 +95,7 @@ impl ActionButton {
             }
             
         } 
+
         if self.hover(self.hitbox, select.0, select.1) {
             // Check if button is pressed (press z)
             if gp.a.just_pressed(){
@@ -110,4 +122,5 @@ impl ActionButton {
         }
     }
 
+    
 }

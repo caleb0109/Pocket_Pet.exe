@@ -146,6 +146,7 @@ turbo::go!({
 //Summon Pipi
     state.pipi.summon();
 
+
 // Draw
     state.food.draw();
     state.shower.draw();
@@ -157,6 +158,7 @@ turbo::go!({
     text!("Activity: {:?}", state.player.activity; x = 0, y = 10, color = 0x22406eff);
     text!("Affection: {:?}", state.player.affection; x = 45, y = 0, color = 0x22406eff);
     text!("Day: {:?}", state.player.day; x = 200, y = 0, color = 0x22406eff);
+    text!("Count: {:?}", state.pipi.count; x = 200, y = 10, color = 0x22406eff);
     // Save GameState
     state.save();
 });
