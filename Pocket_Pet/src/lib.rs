@@ -7,6 +7,7 @@ mod social_media;
 use std::collections::HashMap;
 use player::Player;
 use button::ActionButton;
+use turbo::prelude::*;
 
 turbo::init!{
     struct GameState{
@@ -35,7 +36,7 @@ turbo::init!{
         work: ActionButton::new("work", (25, 114, 34, 34),false),
         allowance: ActionButton::new("allowance", (142, 114, 34, 34),false),
         sleep: ActionButton::new("sleep", (181, 114, 34, 34),false),
-        sm: ActionButton::new("social media", (20, 30, 20, 20), false),
+        sm: ActionButton::new("sm", (218, 60, 20, 20), false),
         player: Player::new(),
         select: (25,114),
         toggle: false,
@@ -49,7 +50,7 @@ turbo::init!{
 
 turbo::go!({
     let mut state = GameState::load();
-    
+    camera::set_xy(120, 80);
     //checks if left or right has been inputted and if it has
     //then it moves the selected variable properly
     let gp = gamepad(0);
@@ -73,13 +74,13 @@ turbo::go!({
     
     //gets mouse
     //sets the select to the location that is being highlighted either by mouse or keyboard
-    //i'll look into cleaning this up tomorrow
     state.select.0 = state.pipi.check(state.select);
     state.select.0 = state.food.check(state.select);
     state.select.0 = state.shower.check(state.select);
     state.select.0 = state.work.check(state.select);
     state.select.0 = state.allowance.check(state.select);
     state.select.0 = state.sleep.check(state.select);
+    state.select.0 = state.sm.check(state.select);
 
 
     //gathers buttons to see if it was pressed or not
@@ -97,11 +98,11 @@ turbo::go!({
         if acted[n]{
             match n {
                 0 => {
-                    state.player.feed_or_shower(state.food.luxary);
+                    state.player.feed_or_shower(state.food.luxury);
                     state.food.action = false;
                 }
                 1 => {
-                    state.player.feed_or_shower(state.shower.luxary);
+                    state.player.feed_or_shower(state.shower.luxury);
                     state.shower.action = false;
                 }
                 2 => {
@@ -153,12 +154,17 @@ turbo::go!({
     state.work.draw();
     state.allowance.draw();
     state.sleep.draw();
+    state.sm.tempDraw();
 
     text!("Money: {:?}", state.player.account; x = 0, y = 0, color = 0x22406eff);
     text!("Activity: {:?}", state.player.activity; x = 0, y = 10, color = 0x22406eff);
     text!("Affection: {:?}", state.player.affection; x = 45, y = 0, color = 0x22406eff);
     text!("Day: {:?}", state.player.day; x = 200, y = 0, color = 0x22406eff);
+<<<<<<< HEAD
     text!("Count: {:?}", state.pipi.count; x = 200, y = 10, color = 0x22406eff);
+=======
+    text!("Pipi count: {:?}", state.pipi.count; x = 165, y = 10, color = 0x22406eff);
+>>>>>>> 864b3e2c5167ce55f4a93e1db605c0536aed15ba
     // Save GameState
     state.save();
 });

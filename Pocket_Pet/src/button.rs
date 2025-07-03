@@ -9,7 +9,7 @@ pub struct ActionButton {
     pub text: String,
     pub hovered: bool,
     pub action: bool,
-    pub luxary: bool,
+    pub luxury: bool,
     pub count: u32,
 }
 
@@ -20,9 +20,28 @@ impl ActionButton {
             text: text.to_string(), // button text
             hovered: false, // hover state
             action: act, //checks if specific button was pressed or not
-            luxary: false,
+            luxury: false,
             count: 0,
         }
+    }
+
+    //temp to draw the social media button
+    //will be deleted afterwards
+    pub fn tempDraw(&self) {
+        // Color references
+        let (c1, c2): (u32, u32) = match self.hovered {
+            true => (0x323b42ff, 0xffffffff),
+            false => (0xffffffff, 0x323b42ff)
+        };
+        // Calculate text offset for centering
+        let (x, y) = 
+            (self.hitbox.0 + (self.hitbox.2/2) - (self.text.len() as f32 * 2.5) as i32, 
+            self.hitbox.1 + (self.hitbox.3/2) - 3);
+
+        // Draw button
+        rect!(x = self.hitbox.0, y = self.hitbox.1, w = self.hitbox.2, h = self.hitbox.3, color = c1);
+        // Draw text
+        text!(&self.text, x = x, y = y, color = c2);
     }
 
     //draws the button onto the screen
@@ -58,6 +77,7 @@ impl ActionButton {
         
     }
 
+<<<<<<< HEAD
     //checks if mouse clicked pipi
     pub fn pipiselect(&mut self) -> bool {
         let m = pointer();
@@ -72,6 +92,12 @@ impl ActionButton {
         }else {
             return false;
         }
+=======
+        // match self.hovered {
+        //     true => sprite!("PIPI#WAVE", x = self.hitbox.0, y = self.hitbox.1),
+        //     false => sprite!("PIPI#HAPPY_good", x = self.hitbox.0, y = self.hitbox.1)
+        // };
+>>>>>>> 864b3e2c5167ce55f4a93e1db605c0536aed15ba
     }
     
     //checks if the mouse is hovering the button or not
@@ -86,6 +112,9 @@ impl ActionButton {
             if self.hitbox.1 > 30 { //checks if the button selected is Pipi
                 if m.just_pressed(){
                     self.action = true; // Call function local to button
+                    if self.text == "sm" {
+                        camera::set_xy(360, 80);
+                    }
                     return self.hitbox.0;
                 }else {
                     return self.hitbox.0;
