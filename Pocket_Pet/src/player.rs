@@ -1,3 +1,5 @@
+use std::fmt::format;
+
 use crate::BorshDeserialize;
 use crate::BorshSerialize;
 use turbo::prelude::*;
@@ -13,6 +15,7 @@ pub struct Player{
     pub salary: i32,
     pub activity: i32,
     pub affection: i32,
+    pub playanim: [bool; 5],
 }
 
 impl Player {
@@ -24,6 +27,7 @@ impl Player {
             salary: 3,
             activity: 3,
             affection: 0,
+            playanim: [false, false, false, false, false],
         }
     }
 
@@ -35,7 +39,7 @@ impl Player {
         }
     }
     
-    pub fn feed_or_shower(&mut self, luxary: bool){
+    pub fn feed(&mut self, luxary: bool){
         let mut cost = 1;
         if self.active_check() {
             if luxary {
@@ -44,7 +48,23 @@ impl Player {
             if self.account >= cost {
                 self.account -= cost;
                 self.activity -= 1;
+                self.playanim[0] = true;
             }
+            
+        }
+    }
+
+    pub fn shower(&mut self, luxary: bool){
+        let mut cost = 1;
+        if self.active_check() {
+            if luxary {
+                cost = 2;
+            }
+            if self.account >= cost {
+                self.account -= cost;
+                self.activity -= 1;
+                self.playanim[1] = true;
+            }           
 
         }
     }
@@ -58,24 +78,29 @@ impl Player {
             if self.account > cap {
                 self.account = 5;
             }
+            self.playanim[2] = true;
         } else {
             return;
         }
     }
 
     pub fn go_sleep(&mut self){
+        self.playanim[4] = true;
         self.activity = 3;
-        self.day += 1;
+        self.day += 1;       
     }
 
-    pub fn allowance(&mut self){
+    pub fn allowance(&mut self) {
         let cost = 2;
         if self.active_check() {
             if self.account >= cost {
                 self.account -= cost;
                 self.affection += 10;
                 self.activity -= 1;
-            }
-        }
-    }
+
+                self.playanim[3] = true;
+            }               
+        }       
+    } 
+        
 }

@@ -71,7 +71,6 @@ turbo::go!({
         }
     }
 
-    
     //gets mouse
     //sets the select to the location that is being highlighted either by mouse or keyboard
     state.select.0 = state.pipi.check(state.select);
@@ -98,11 +97,11 @@ turbo::go!({
         if acted[n]{
             match n {
                 0 => {
-                    state.player.feed_or_shower(state.food.luxury);
+                    state.player.feed(state.food.luxury);
                     state.food.action = false;
                 }
                 1 => {
-                    state.player.feed_or_shower(state.shower.luxury);
+                    state.player.shower(state.shower.luxury);
                     state.shower.action = false;
                 }
                 2 => {
@@ -125,9 +124,16 @@ turbo::go!({
                 }
             }
         }
-    }
+    } 
+    
        
-//Background elements
+    //Background elements
+    // match state.player.activity {
+    //     3 => clear(0xfae3deff),
+    //     2 => clear(0xc47a87ff),
+    //     1 => clear(0x22406eff),
+    //     _ => clear(0xfae3deff),
+    // }
     clear(0xfae3deff);
     let frame = (state.frame as i32) / 2;
     for col in 0..16 {
@@ -139,16 +145,58 @@ turbo::go!({
     }
     state.frame += 1;
 
-//Screen
+    //Screen
     sprite!("screen", x = 24, y = 19);
     let day = state.player.day.to_string();
     text!("Day {}", &day; x = 29, y = 105, color = 0x22406eff, font = "small");
-
-//Summon Pipi
+    
     state.pipi.summon();
 
+    //Screen animations
+    let anim = animation::get("screenanim");      
+        for n in 0..5 {
+            if state.player.playanim[n] {
+                match n {
+                    0 => {
+                        anim.use_sprite("screen_anims#FEED");
+                        anim.set_repeat(1);
+                        state.player.playanim[0] = false;
 
-// Draw
+                    }
+                    1 => {
+                        anim.use_sprite("screen_anims#SHOWER");
+                        anim.set_repeat(1);
+                        state.player.playanim[1] = false;
+                    }
+                    2 => {
+                        anim.use_sprite("screen_anims#WORK");
+                        anim.set_repeat(1);
+                        state.player.playanim[2] = false;
+
+                    }
+                    3 => {
+                        anim.use_sprite("screen_anims#ALLOWANCE");
+                        anim.set_repeat(1);
+                        state.player.playanim[3] = false;
+
+                    }
+                    4 => {
+                        anim.use_sprite("screen_anims#SLEEP");
+                        anim.set_repeat(1);
+                        state.player.playanim[4] = false;
+
+                    }
+                    _ => {
+                        anim.use_sprite("screen_anims#SLEEP");
+                        anim.set_repeat(1);
+
+                    }
+                }
+            }          
+        }
+    sprite!(animation_key = "screenanim", x = 24, y = 19);
+
+    // Draw
     state.food.draw();
     state.shower.draw();
     state.work.draw();
@@ -160,7 +208,8 @@ turbo::go!({
     text!("Activity: {:?}", state.player.activity; x = 0, y = 10, color = 0x22406eff);
     text!("Affection: {:?}", state.player.affection; x = 45, y = 0, color = 0x22406eff);
     text!("Day: {:?}", state.player.day; x = 200, y = 0, color = 0x22406eff);
-    text!("Pipi count: {:?}", state.pipi.count; x = 165, y = 10, color = 0x22406eff);
+    //text!("anim: {:?}", animdone; x = 165, y = 10, color = 0x22406eff);   
+
     // Save GameState
     state.save();
 });
