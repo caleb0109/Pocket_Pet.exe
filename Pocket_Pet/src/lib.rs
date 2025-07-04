@@ -209,7 +209,7 @@ turbo::go!({
                 }
             }          
         }
-    sprite!(animation_key = "screenanim", x = 24, y = 19);
+    sprite!(animation_key = "screenanim", x = 264, y = 19);
 
     // Draw
     state.food.draw();
