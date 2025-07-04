@@ -105,9 +105,6 @@ impl ActionButton {
             if self.hitbox.1 > 30 { //checks if the button selected is Pipi
                 if m.just_pressed(){
                     self.action = true; // Call function local to button
-                    if self.text == "sm" {
-                        camera::set_xy(360, 80);
-                    }
                     return self.hitbox.0;
                 }else {
                     return self.hitbox.0;
