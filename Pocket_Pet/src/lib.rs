@@ -33,12 +33,12 @@ turbo::init!{
     } = Self {
         screen: Scene::Main,
         pipi: ActionButton::new("PIPI",(330, 30, 60, 69),false),
-        food: ActionButton::new("food",(304, 114, 34, 34),false),
-        shower: ActionButton::new("shower", (343, 114, 34, 34),false),
-        work: ActionButton::new("work", (265, 114, 34, 34),false),
-        allowance: ActionButton::new("allowance", (382, 114, 34, 34),false),
-        sleep: ActionButton::new("sleep", (421, 114, 34, 34),false),
-        sm: ActionButton::new("sm", (240, 60, 20, 20), false),
+        food: ActionButton::new("food",(304, 117, 34, 34),false),
+        shower: ActionButton::new("shower", (343, 117, 34, 34),false),
+        work: ActionButton::new("work", (265, 117, 34, 34),false),
+        allowance: ActionButton::new("allowance", (382, 117, 34, 34),false),
+        sleep: ActionButton::new("sleep", (421, 117, 34, 34),false),
+        sm: ActionButton::new("sns", (243, 71, 19, 19), false),
         main: ActionButton::new("main", (210, 60, 20, 20), false),
         player: Player::new(),
         select: (265,114),
@@ -159,11 +159,35 @@ turbo::go!({
     }
     state.frame += 1;
 
+//affection bar
+    sprite!("affectionbar", x = 267, y = 8);
+
 //Screen
     sprite!("screen", x = 264, y = 19);
-    let day = state.player.day.to_string();
-    text!("Day {}", &day; x = 269, y = 105, color = 0x22406eff, font = "small");
 
+    let day = state.player.day.to_string();
+    text!("DAY {}", &day; x = 269, y = 106, color = 0x22406eff, font = "small");
+    
+    text!("TIME", x = 310, y = 106, color = 0x22406eff, font = "small");
+    match state.player.activity {
+        0 => sprite!("time#0", x = 335, y = 106),
+        1 => sprite!("time#1", x = 335, y = 106),
+        2 => sprite!("time#2", x = 335, y = 106),
+        3 => sprite!("time#3", x = 335, y = 106),
+        _ => sprite!("time#3", x = 335, y = 106),
+    }
+
+    text!("MONEY", x = 360, y = 106, color = 0x22406eff, font = "small");
+    match state.player.account {
+            0 => sprite!("money#0", x = 390, y = 106),
+            1 => sprite!("money#1", x = 390, y = 106),
+            2 => sprite!("money#2", x = 390, y = 106),
+            3 => sprite!("money#3", x = 390, y = 106),
+            4 => sprite!("money#4", x = 390, y = 106),
+            5 => sprite!("money#5", x = 390, y = 106),
+            _ => sprite!("money#5", x = 390, y = 106),
+        }
+        
 //Summon Pipi
     state.pipi.summon();
 
@@ -217,7 +241,7 @@ turbo::go!({
     state.work.draw();
     state.allowance.draw();
     state.sleep.draw();
-    state.sm.tempDraw();
+    state.sm.draw();
     state.main.tempDraw();
 
     //Social Media UI
