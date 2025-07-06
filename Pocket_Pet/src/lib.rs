@@ -16,14 +16,7 @@ turbo::init!{
             Main,
             Social,
         },
-        pipi: ActionButton,
-        food: ActionButton,
-        shower: ActionButton,
-        work: ActionButton,
-        allowance: ActionButton,
-        sleep: ActionButton,
-        sm: ActionButton,
-        main: ActionButton,
+        uibuttons: [ActionButton; 8],
         player: Player,
         select: (i32,i32),
         frame: u32,
@@ -32,16 +25,18 @@ turbo::init!{
 
     } = Self {
         screen: Scene::Main,
-        pipi: ActionButton::new("PIPI",(330, 30, 60, 69),false),
-        food: ActionButton::new("food",(304, 117, 34, 34),false),
-        shower: ActionButton::new("shower", (343, 117, 34, 34),false),
-        work: ActionButton::new("work", (265, 117, 34, 34),false),
-        allowance: ActionButton::new("allowance", (382, 117, 34, 34),false),
-        sleep: ActionButton::new("sleep", (421, 117, 34, 34),false),
-        sm: ActionButton::new("sns", (243, 71, 19, 19), false),
-        main: ActionButton::new("main", (210, 60, 20, 20), false),
+        uibuttons: [
+            ActionButton::new("food",(304, 117, 34, 34),false),
+            ActionButton::new("shower", (343, 117, 34, 34),false),
+            ActionButton::new("work", (265, 117, 34, 34),false),
+            ActionButton::new("allowance", (382, 117, 34, 34),false),
+            ActionButton::new("sleep", (421, 117, 34, 34),false),
+            ActionButton::new("PIPI",(330, 30, 60, 69),false),
+            ActionButton::new("sns", (243, 71, 19, 19), false),
+            ActionButton::new("main", (210, 60, 20, 20), false),
+        ],
         player: Player::new(),
-        select: (265,114),
+        select: (265,117),
         frame : 0,
         tweens: HashMap::from([
             ("social_media_change".to_string(), Tween::new(0.)),
@@ -74,64 +69,47 @@ turbo::go!({
         }
     }
 
-    //gets mouse
     //sets the select to the location that is being highlighted either by mouse or keyboard
-    state.select.0 = state.pipi.check(state.select);
-    state.select.0 = state.food.check(state.select);
-    state.select.0 = state.shower.check(state.select);
-    state.select.0 = state.work.check(state.select);
-    state.select.0 = state.allowance.check(state.select);
-    state.select.0 = state.sleep.check(state.select);
-    state.select.0 = state.sm.check(state.select);
-    state.select.0 = state.main.check(state.select);
 
-
-    //gathers buttons to see if it was pressed or not
-    let acted: [bool; 8] = [
-        state.food.action,
-        state.shower.action,
-        state.work.action,
-        state.allowance.action,
-        state.sleep.action,
-        state.pipi.action,
-        state.sm.action,
-        state.main.action];
+    for n in 0..8 {
+        state.select.0 = state.uibuttons[n].check(state.select);
+    }
 
 
     //goes through for loop to see which button was pressed
     for n in 0..8 {
-        if acted[n]{
+        if state.uibuttons[n].action{
             match n {
                 0 => {
-                    state.player.feed(state.food.luxury);
-                    state.food.action = false;
+                    state.player.feed(state.uibuttons[0].luxury);
+                    state.uibuttons[0].action = false;
                 }
                 1 => {
-                    state.player.shower(state.shower.luxury);
-                    state.shower.action = false;
+                    state.player.shower(state.uibuttons[1].luxury);
+                    state.uibuttons[1].action = false;
                 }
                 2 => {
                     state.player.working();
-                    state.work.action = false;
+                    state.uibuttons[2].action = false;
                 }
                 3 => {
                     state.player.allowance();
-                    state.allowance.action = false;
+                    state.uibuttons[3].action = false;
                 }
                 4 => {
                     state.player.go_sleep();
-                    state.sleep.action = false;
+                    state.uibuttons[4].action = false;
                 }
                 5 => {
-                    state.pipi.action = false;
+                    state.uibuttons[5].action = false;
                 }
                 6 => {
                     state.cameraPos.0 = 120;
-                    state.sm.action = false;
+                    state.uibuttons[6].action = false;
                 }
                 7 => {
                     state.cameraPos.0 = 360;
-                    state.main.action = false;
+                    state.uibuttons[7].action = false;
                 }
                 _ => {
                     text!("didn't work", x = 30, y = 40);
@@ -189,7 +167,7 @@ turbo::go!({
         }
         
 //Summon Pipi
-    state.pipi.summon();
+    state.uibuttons[5].summon();
 
     //Screen animations
     let anim = animation::get("screenanim");      
@@ -236,13 +214,13 @@ turbo::go!({
     sprite!(animation_key = "screenanim", x = 264, y = 19);
 
     // Draw
-    state.food.draw();
-    state.shower.draw();
-    state.work.draw();
-    state.allowance.draw();
-    state.sleep.draw();
-    state.sm.draw();
-    state.main.tempDraw();
+    for n in 0..8 {
+        if n != 5{
+            state.uibuttons[n].draw();
+        }
+    }
+
+    state.uibuttons[7].tempDraw();
 
     //Social Media UI
     path!(
@@ -279,11 +257,10 @@ turbo::go!({
     );
 
     //Stats
-    text!("Money: {:?}", state.player.account; x = 240, y = 0, color = 0x22406eff);
-    text!("Activity: {:?}", state.player.activity; x = 240, y = 10, color = 0x22406eff);
-    text!("Affection: {:?}", state.player.affection; x = 285, y = 0, color = 0x22406eff);
+    text!("Anim: {:?}", state.player.playanim; x = 240, y = 0, color = 0x22406eff);
+    //text!("Affection: {:?}", state.player.affection; x = 285, y = 0, color = 0x22406eff);
     text!("Day: {:?}", state.player.day; x = 450, y = 0, color = 0x22406eff);
-    text!("Pipi count: {:?}", state.pipi.count; x = 415, y = 10, color = 0x22406eff);
+    text!("Pipi count: {:?}", state.uibuttons[5].count; x = 415, y = 10, color = 0x22406eff);
     // Save GameState
     state.save();
 });

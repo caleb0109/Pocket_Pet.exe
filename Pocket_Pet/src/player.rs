@@ -74,7 +74,6 @@ impl Player {
         if self.active_check() {
             self.account += self.salary;
             self.activity -= 1;
-            text!("WORKING", x = 10, y= 20);
             if self.account > cap {
                 self.account = 5;
             }
