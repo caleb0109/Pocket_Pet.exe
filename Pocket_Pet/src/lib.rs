@@ -12,10 +12,7 @@ use turbo::prelude::*;
 
 turbo::init!{
     struct GameState{
-        screen: enum Scene {
-            Main,
-            Social,
-        },
+        screen: u8,
         uibuttons: [ActionButton; 8],
         player: Player,
         select: (i32,i32),
@@ -24,7 +21,7 @@ turbo::init!{
         cameraPos: (i32,i32)
 
     } = Self {
-        screen: Scene::Main,
+        screen: 0,
         uibuttons: [
             ActionButton::new("food",(304, 117, 34, 34),false),
             ActionButton::new("shower", (343, 117, 34, 34),false),
@@ -69,56 +66,6 @@ turbo::go!({
         }
     }
 
-    //sets the select to the location that is being highlighted either by mouse or keyboard
-
-    for n in 0..8 {
-        state.select.0 = state.uibuttons[n].check(state.select);
-    }
-
-
-    //goes through for loop to see which button was pressed
-    for n in 0..8 {
-        if state.uibuttons[n].action{
-            match n {
-                0 => {
-                    state.player.feed(state.uibuttons[0].luxury);
-                    state.uibuttons[0].action = false;
-                }
-                1 => {
-                    state.player.shower(state.uibuttons[1].luxury);
-                    state.uibuttons[1].action = false;
-                }
-                2 => {
-                    state.player.working();
-                    state.uibuttons[2].action = false;
-                }
-                3 => {
-                    state.player.allowance();
-                    state.uibuttons[3].action = false;
-                }
-                4 => {
-                    state.player.go_sleep();
-                    state.uibuttons[4].action = false;
-                }
-                5 => {
-                    state.uibuttons[5].action = false;
-                }
-                6 => {
-                    state.cameraPos.0 = 120;
-                    state.uibuttons[6].action = false;
-                }
-                7 => {
-                    state.cameraPos.0 = 360;
-                    state.uibuttons[7].action = false;
-                }
-                _ => {
-                    text!("didn't work", x = 30, y = 40);
-                }
-            }
-        }
-    } 
-    
-       
     //Background elements
     // match state.player.activity {
     //     3 => clear(0xfae3deff),
@@ -218,8 +165,54 @@ turbo::go!({
     //sprite!("screen_work", x = 264, y = 19);
     sprite!(animation_key = "screenanim", default_sprite = "screen_anims#empty", x = 264, y = 19);
 
+    //sets the select to the location that is being highlighted either by mouse or keyboard
+    //goes through for loop to see which button was pressed
     // Draw
     for n in 0..8 {
+        state.select.0 = state.uibuttons[n].check(state.select);
+        if state.uibuttons[n].action{
+            match n {
+                0 => {
+                    state.player.feed(state.uibuttons[0].luxury);
+                    state.uibuttons[0].action = false;
+                }
+                1 => {
+                    state.player.shower(state.uibuttons[1].luxury);
+                    state.uibuttons[1].action = false;
+                }
+                2 => {
+                    state.player.working();
+                    state.uibuttons[2].action = false;
+                }
+                3 => {
+                    state.player.allowance();
+                    state.uibuttons[3].action = false;
+                }
+                4 => {
+                    state.player.go_sleep();
+                    state.uibuttons[4].action = false;
+                }
+                5 => {
+                    state.uibuttons[5].action = false;
+                }
+                6 => {
+                    state.cameraPos.0 = 120;
+                    //will look more into this tween
+                    // state.tweens.insert(
+                    //     "social_media_change".to_string(),
+                    //     Tween::new(360.).set(120.).duration(120).ease(Easing::EaseInOutSine)
+                    // );
+                    state.uibuttons[6].action = false;
+                }
+                7 => {
+                    state.cameraPos.0 = 360;
+                    state.uibuttons[7].action = false;
+                }
+                _ => {
+                    text!("didn't work", x = 30, y = 40);
+                }
+            }
+        }
         if n != 5{
             state.uibuttons[n].draw();
         }
