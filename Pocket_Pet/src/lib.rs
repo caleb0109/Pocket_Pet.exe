@@ -155,14 +155,6 @@ turbo::go!({
                 
             }          
         }
-        // let workanim = animation::get("screen_work");
-        // workanim.set_repeat(1);
-    // if play{
-        
-    //     sprite!("screen_work", x = 264, y = 19);
-    //     //play = false;
-    // }
-    //sprite!("screen_work", x = 264, y = 19);
     sprite!(animation_key = "screenanim", default_sprite = "screen_anims#empty", x = 264, y = 19);
 
     //sets the select to the location that is being highlighted either by mouse or keyboard
