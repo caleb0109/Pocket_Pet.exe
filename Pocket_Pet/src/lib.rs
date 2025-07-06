@@ -169,8 +169,9 @@ turbo::go!({
 //Summon Pipi
     state.uibuttons[5].summon();
 
-    //Screen animations
+//Screen animations
     let anim = animation::get("screenanim");      
+    let mut play = false;
         for n in 0..5 {
             if state.player.playanim[n] {
                 match n {
@@ -178,7 +179,6 @@ turbo::go!({
                         anim.use_sprite("screen_anims#FEED");
                         anim.set_repeat(1);
                         state.player.playanim[0] = false;
-
                     }
                     1 => {
                         anim.use_sprite("screen_anims#SHOWER");
@@ -189,29 +189,34 @@ turbo::go!({
                         anim.use_sprite("screen_anims#WORK");
                         anim.set_repeat(1);
                         state.player.playanim[2] = false;
-
                     }
                     3 => {
                         anim.use_sprite("screen_anims#ALLOWANCE");
                         anim.set_repeat(1);
                         state.player.playanim[3] = false;
-
                     }
                     4 => {
                         anim.use_sprite("screen_anims#SLEEP");
                         anim.set_repeat(1);
                         state.player.playanim[4] = false;
-
                     }
                     _ => {
                         anim.use_sprite("screen_anims#SLEEP");
                         anim.set_repeat(1);
-
                     }
                 }
+                
             }          
         }
-    sprite!(animation_key = "screenanim", x = 264, y = 19);
+        // let workanim = animation::get("screen_work");
+        // workanim.set_repeat(1);
+    // if play{
+        
+    //     sprite!("screen_work", x = 264, y = 19);
+    //     //play = false;
+    // }
+    //sprite!("screen_work", x = 264, y = 19);
+    sprite!(animation_key = "screenanim", default_sprite = "screen_anims#empty", x = 264, y = 19);
 
     // Draw
     for n in 0..8 {
