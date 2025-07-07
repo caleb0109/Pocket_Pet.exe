@@ -118,7 +118,7 @@ turbo::go!({
 
 //Screen animations
     let anim = animation::get("screenanim");      
-    let mut play = false;
+    //let mut play = false;
         for n in 0..5 {
             if state.player.playanim[n] {
                 match n {
@@ -157,12 +157,19 @@ turbo::go!({
         }
     sprite!(animation_key = "screenanim", default_sprite = "screen_anims#empty", x = 264, y = 19);
 
+
     //sets the select to the location that is being highlighted either by mouse or keyboard
     //goes through for loop to see which button was pressed
     // Draw
+    let can_click = anim.sprite_name() == "screen_anims#empty";
+    
     for n in 0..8 {
         state.select.0 = state.uibuttons[n].check(state.select);
-        if state.uibuttons[n].action{
+        if state.uibuttons[n].action && !can_click {
+            state.uibuttons[n].action = false;
+        }
+        if state.uibuttons[n].action && can_click{
+            log!("{:?}", n);
             match n {
                 0 => {
                     state.player.feed(state.uibuttons[0].luxury);
@@ -247,7 +254,6 @@ turbo::go!({
     );
 
     //Stats
-    text!("Anim: {:?}", state.player.playanim; x = 240, y = 0, color = 0x22406eff);
     //text!("Affection: {:?}", state.player.affection; x = 285, y = 0, color = 0x22406eff);
     text!("Day: {:?}", state.player.day; x = 450, y = 0, color = 0x22406eff);
     text!("Pipi count: {:?}", state.uibuttons[5].count; x = 415, y = 10, color = 0x22406eff);
