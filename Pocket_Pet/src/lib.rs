@@ -85,7 +85,20 @@ turbo::go!({
     state.frame += 1;
 
 //affection bar
+//the values are hard coded :( if you need to change the affectionmax, the sprites need to be changed as well
     sprite!("affectionbar", x = 267, y = 8);
+    let increment = 160/state.player.affectionmax;
+    let total = increment * state.player.affection;
+    if state.player.affection == state.player.affectionmax {
+        sprite!("barstart", x = 277, y = 10);
+        sprite!("barmiddle", x = 285, y = 10, w = total);
+        sprite!("barend", x = 444, y = 10);
+    } else if  state.player.affection > 0 {
+        sprite!("barstart", x = 277, y = 10);
+        sprite!("barmiddle", x = 283, y = 10, w = total);
+        sprite!("barend", x = 283 + total, y = 10);
+    };
+   
 
 //Screen
     sprite!("screen", x = 264, y = 19);

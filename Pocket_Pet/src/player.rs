@@ -15,6 +15,7 @@ pub struct Player{
     pub salary: i32,
     pub activity: i32,
     pub affection: i32,
+    pub affectionmax: i32,
     pub playanim: [bool; 5],
 }
 
@@ -27,6 +28,7 @@ impl Player {
             salary: 3,
             activity: 3,
             affection: 0,
+            affectionmax: 10,
             playanim: [false, false, false, false, false],
         }
     }
@@ -94,7 +96,9 @@ impl Player {
         if self.active_check() {
             if self.account >= cost {
                 self.account -= cost;
-                self.affection += 10;
+                if self.affection < self.affectionmax {
+                   self.affection += 1; 
+                }               
                 self.activity -= 1;
 
                 self.playanim[3] = true;
