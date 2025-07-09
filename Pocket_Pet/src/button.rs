@@ -27,22 +27,22 @@ impl ActionButton {
 
     //temp to draw the social media button
     //will be deleted afterwards
-    pub fn tempDraw(&self) {
-        // Color references
-        let (c1, c2): (u32, u32) = match self.hovered {
-            true => (0x323b42ff, 0xffffffff),
-            false => (0xffffffff, 0x323b42ff)
-        };
-        // Calculate text offset for centering
-        let (x, y) = 
-            (self.hitbox.0 + (self.hitbox.2/2) - (self.text.len() as f32 * 2.5) as i32, 
-            self.hitbox.1 + (self.hitbox.3/2) - 3);
+    // pub fn tempDraw(&self) {
+    //     // Color references
+    //     let (c1, c2): (u32, u32) = match self.hovered {
+    //         true => (0x323b42ff, 0xffffffff),
+    //         false => (0xffffffff, 0x323b42ff)
+    //     };
+    //     // Calculate text offset for centering
+    //     let (x, y) = 
+    //         (self.hitbox.0 + (self.hitbox.2/2) - (self.text.len() as f32 * 2.5) as i32, 
+    //         self.hitbox.1 + (self.hitbox.3/2) - 3);
 
-        // Draw button
-        rect!(x = self.hitbox.0, y = self.hitbox.1, w = self.hitbox.2, h = self.hitbox.3, color = c1);
-        // Draw text
-        text!(&self.text, x = x, y = y, color = c2);
-    }
+    //     // Draw button
+    //     rect!(x = self.hitbox.0, y = self.hitbox.1, w = self.hitbox.2, h = self.hitbox.3, color = c1);
+    //     // Draw text
+    //     text!(&self.text, x = x, y = y, color = c2);
+    // }
 
     //draws the button onto the screen
     pub fn draw(&self) {

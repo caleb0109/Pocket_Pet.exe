@@ -13,7 +13,7 @@ use turbo::prelude::*;
 turbo::init!{
     struct GameState{
         screen: u8,
-        uibuttons: [ActionButton; 8],
+        uibuttons: [ActionButton; 10],
         player: Player,
         select: (i32,i32),
         frame: u32,
@@ -30,7 +30,9 @@ turbo::init!{
             ActionButton::new("sleep", (421, 117, 34, 34),false),
             ActionButton::new("PIPI",(330, 30, 60, 69),false),
             ActionButton::new("sns", (243, 71, 19, 19), false),
-            ActionButton::new("main", (210, 60, 20, 20), false),
+            ActionButton::new("return", (218, 71, 19, 19), false),
+            ActionButton::new("arrowup", (18, 125, 11, 14), false),
+            ActionButton::new("arrowdown", (18, 141, 11, 14), false)
         ],
         player: Player::new(),
         select: (265,117),
@@ -75,7 +77,7 @@ turbo::go!({
     // }
     clear(0xfae3deff);
     let frame = (state.frame as i32) / 2;
-    for col in 14..27 {
+    for col in 0..27 {
         for row in 0..9 {
             let x = col * 18;
             let y = (row * 18 + frame) % (160);
@@ -176,7 +178,7 @@ turbo::go!({
     // Draw
     let can_click = anim.sprite_name() == "screen_anims#empty";
     
-    for n in 0..8 {
+    for n in 0..10 {
         state.select.0 = state.uibuttons[n].check(state.select);
         if state.uibuttons[n].action && !can_click {
             state.uibuttons[n].action = false;
@@ -220,6 +222,12 @@ turbo::go!({
                     state.cameraPos.0 = 360;
                     state.uibuttons[7].action = false;
                 }
+                8 => {
+                    state.uibuttons[8].action = false;
+                }
+                9 => {
+                    state.uibuttons[9].action = false;
+                }
                 _ => {
                     text!("didn't work", x = 30, y = 40);
                 }
@@ -230,41 +238,42 @@ turbo::go!({
         }
     }
 
-    state.uibuttons[7].tempDraw();
+    //state.uibuttons[7].tempDraw();
 
     //Social Media UI
-    path!(
-        start = (195,0),
-        end = (195,160),
-        size = 2,
-    );
+    sprite!("sns_bg", x = 32, y = 0);
+    // path!(
+    //     start = (195,0),
+    //     end = (195,160),
+    //     size = 2,
+    // );
 
-    circ!(
-        d = 18,
-        x = 10,
-        y = 10,
-        color = 0xfae3deff,
-        border_size = 2,
-        border_color = 0xffffffff,
-    );
-    rect!(
-        w = 160,
-        h = 70,
-        x = 30,
-        y = 10,
-        color = 0xfae3deff,
-        border_size = 2 ,
-        border_color = 0xffffffff,
-    );
-    rect!(
-        w = 120,
-        h = 20,
-        x = 30,
-        y = 80,
-        color = 0xfae3deff,
-        border_size = 2 ,
-        border_color = 0xffffffff,
-    );
+    // circ!(
+    //     d = 18,
+    //     x = 10,
+    //     y = 10,
+    //     color = 0xfae3deff,
+    //     border_size = 2,
+    //     border_color = 0xffffffff,
+    // );
+    // rect!(
+    //     w = 160,
+    //     h = 70,
+    //     x = 30,
+    //     y = 10,
+    //     color = 0xfae3deff,
+    //     border_size = 2 ,
+    //     border_color = 0xffffffff,
+    // );
+    // rect!(
+    //     w = 120,
+    //     h = 20,
+    //     x = 30,
+    //     y = 80,
+    //     color = 0xfae3deff,
+    //     border_size = 2 ,
+    //     border_color = 0xffffffff,
+    // );
 
     //Stats
     //text!("Affection: {:?}", state.player.affection; x = 285, y = 0, color = 0x22406eff);
