@@ -20,33 +20,44 @@ turbo::init!{
         tweens:HashMap<String, Tween<f32>>,
         cameraPos: (i32,i32)
 
-    } = Self {
-        screen: 0,
-        uibuttons: [
-            ActionButton::new("food",(304, 117, 34, 34),false),
-            ActionButton::new("shower", (343, 117, 34, 34),false),
-            ActionButton::new("work", (265, 117, 34, 34),false),
-            ActionButton::new("allowance", (382, 117, 34, 34),false),
-            ActionButton::new("sleep", (421, 117, 34, 34),false),
-            ActionButton::new("PIPI",(330, 30, 60, 69),false),
-            ActionButton::new("sns", (243, 71, 19, 19), false),
-            ActionButton::new("return", (218, 71, 19, 19), false),
-            ActionButton::new("arrowup", (18, 125, 11, 14), false),
-            ActionButton::new("arrowdown", (18, 141, 11, 14), false)
-        ],
-        player: Player::new(),
-        select: (265,117),
-        frame : 0,
-        tweens: HashMap::from([
-            ("social_media_change".to_string(), Tween::new(0.)),
-            ("main_screen_change".to_string(), Tween::new(0.)),
-        ]),
-        cameraPos: (360, 80)
+    } = Self::new()
+}
+
+impl GameState {
+    fn new() -> Self {
+        Self {
+            screen: 0,
+            uibuttons: [
+                ActionButton::new("food",(304, 117, 34, 34),false),
+                ActionButton::new("shower", (343, 117, 34, 34),false),
+                ActionButton::new("work", (265, 117, 34, 34),false),
+                ActionButton::new("allowance", (382, 117, 34, 34),false),
+                ActionButton::new("sleep", (421, 117, 34, 34),false),
+                ActionButton::new("PIPI",(330, 30, 60, 69),false),
+                ActionButton::new("sns", (243, 71, 19, 19), false),
+                ActionButton::new("return", (218, 71, 19, 19), false),
+                ActionButton::new("arrowup", (18, 125, 11, 14), false),
+                ActionButton::new("arrowdown", (18, 141, 11, 14), false)
+            ],
+            player: Player::new(),
+            select: (265,117),
+            frame : 0,
+            tweens: HashMap::from([
+                ("social_media_change".to_string(), Tween::new(0.)),
+                ("main_screen_change".to_string(), Tween::new(0.)),
+            ]),
+            cameraPos: (360, 80)
+            }
     }
 }
 
 turbo::go!({
     let mut state = GameState::load();
+
+    if state.player.day == state.player.due_date {
+        state = GameState::new();
+    }
+
     camera::set_xy(state.cameraPos.0,state.cameraPos.1);
     //checks if left or right has been inputted and if it has
     //then it moves the selected variable properly
@@ -242,38 +253,6 @@ turbo::go!({
 
     //Social Media UI
     sprite!("sns_bg", x = 32, y = 0);
-    // path!(
-    //     start = (195,0),
-    //     end = (195,160),
-    //     size = 2,
-    // );
-
-    // circ!(
-    //     d = 18,
-    //     x = 10,
-    //     y = 10,
-    //     color = 0xfae3deff,
-    //     border_size = 2,
-    //     border_color = 0xffffffff,
-    // );
-    // rect!(
-    //     w = 160,
-    //     h = 70,
-    //     x = 30,
-    //     y = 10,
-    //     color = 0xfae3deff,
-    //     border_size = 2 ,
-    //     border_color = 0xffffffff,
-    // );
-    // rect!(
-    //     w = 120,
-    //     h = 20,
-    //     x = 30,
-    //     y = 80,
-    //     color = 0xfae3deff,
-    //     border_size = 2 ,
-    //     border_color = 0xffffffff,
-    // );
 
     //Stats
     //text!("Affection: {:?}", state.player.affection; x = 285, y = 0, color = 0x22406eff);
