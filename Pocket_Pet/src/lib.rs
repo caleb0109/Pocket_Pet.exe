@@ -257,7 +257,7 @@ turbo::go!({
 
     //Stats
     //text!("Affection: {:?}", state.player.affection; x = 285, y = 0, color = 0x22406eff);
-    text!("Day: {:?}", state.player.day; x = 450, y = 0, color = 0x22406eff);
+    text!("Day: {:?}", state.player.day; x = 450, y = 0, color = 0x22406eff, font = "FIVEPIXELS");
     text!("Pipi count: {:?}", state.uibuttons[5].count; x = 415, y = 10, color = 0x22406eff);
     // Save GameState
     state.save();
