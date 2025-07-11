@@ -73,6 +73,18 @@ impl ActionButton {
             return false;
         }
     }
+
+    pub fn sns_notif(&mut self, mut newpost: bool) {
+        if newpost {
+            self.text = "sns_notif".to_string();
+            self.hitbox.0 = 241;
+            self.hitbox.1 = 69;
+        } else {
+            self.text = "sns".to_string();
+            self.hitbox.0 = 243;
+            self.hitbox.1 = 71;
+        }
+    }
     
     //checks if the mouse is hovering the button or not
     pub fn check(&mut self, mut select: (i32,i32)) -> i32{

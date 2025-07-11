@@ -7,6 +7,7 @@ mod social_media;
 use std::collections::HashMap;
 use player::Player;
 use button::ActionButton;
+use social_media::SocialMedia;
 use turbo::prelude::*;
 use mrdirector;
 
@@ -16,6 +17,8 @@ turbo::init!{
         screen: u8,
         uibuttons: [ActionButton; 10],
         player: Player,
+        sns: SocialMedia,
+        unread: bool,
         select: (i32,i32),
         frame: u32,
         tweens:HashMap<String, Tween<f32>>,
@@ -41,6 +44,8 @@ impl GameState {
                 ActionButton::new("arrowdown", (18, 141, 11, 14), false)
             ],
             player: Player::new(),
+            sns: SocialMedia::new(),
+            unread: true,
             select: (265,117),
             frame : 0,
             tweens: HashMap::from([
@@ -228,6 +233,7 @@ turbo::go!({
                     //     "social_media_change".to_string(),
                     //     Tween::new(360.).set(120.).duration(120).ease(Easing::EaseInOutSine)
                     // );
+                    state.unread = false;
                     state.uibuttons[6].action = false;
                 }
                 7 => {
@@ -247,6 +253,7 @@ turbo::go!({
         }
         if n != 5{
             state.uibuttons[n].draw();
+            state.uibuttons[6].sns_notif(state.unread);
         }
     }
 
@@ -254,6 +261,7 @@ turbo::go!({
 
     //Social Media UI
     sprite!("sns_bg", x = 32, y = 0);
+    state.unread = state.sns.new_post(state.unread);
 
     //Stats
     //text!("Affection: {:?}", state.player.affection; x = 285, y = 0, color = 0x22406eff);
