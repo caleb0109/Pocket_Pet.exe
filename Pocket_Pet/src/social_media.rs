@@ -27,7 +27,6 @@ impl SocialMedia {
             self.move_post();
             self.triggered[0] = true;
             self.posted = true;
-            log!("{:?}", self.triggered[0]);
             return self.posted;  
             
         }
@@ -73,11 +72,13 @@ impl SocialMedia {
         if a % 2 == 0 {
             let b = (a/2) * 73 + (a/2) * 87 + 8;
             self.ypos.push(b as u32);
+            self.ypos.swap(0, a);
             log!("{:?}", self.ypos);
             return;
         } else {
             let b = (a/2 + 1) * 73 + (a/2) * 87 + 8;
             self.ypos.push(b as u32);
+            self.ypos.swap(0, a);
             log!("{:?}", self.ypos);
             return;
         }
