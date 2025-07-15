@@ -27,7 +27,7 @@ impl SocialMedia {
             self.move_post();
             self.triggered[0] = true;
             self.posted = true;
-            log!("{:?}", self.triggered[0]);
+            //log!("{:?}", self.triggered[0]);
             return self.posted;  
             
         }
