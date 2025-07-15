@@ -104,7 +104,7 @@ turbo::go!({
     state.frame += 1;
 
 //affection bar
-//the values are hard coded :( if you need to change the affectionmax, the sprites need to be changed as well
+//the values are hard coded, if you need to change the affectionmax, the sprites need to be changed as well
     sprite!("affectionbar", x = 267, y = 8);
     let increment = 160/state.player.affectionmax;
     let total = increment * state.player.affection;
@@ -201,7 +201,7 @@ turbo::go!({
             state.uibuttons[n].action = false;
         }
         if state.uibuttons[n].action && can_click{
-            log!("{:?}", n);
+            //log!("{:?}", n);
             match n {
                 0 => {
                     state.player.feed(state.uibuttons[0].luxury);
@@ -261,7 +261,8 @@ turbo::go!({
 
     //Social Media UI
     sprite!("sns_bg", x = 32, y = 0);
-    state.unread = state.sns.new_post(state.unread);
+    state.unread = state.sns.check_post(state.unread, state.player.hunger, state.player.cleanliness);
+    state.sns.make_post();
 
     //Stats
     //text!("Affection: {:?}", state.player.affection; x = 285, y = 0, color = 0x22406eff);

@@ -74,7 +74,7 @@ impl ActionButton {
         }
     }
 
-    pub fn sns_notif(&mut self, mut newpost: bool) {
+    pub fn sns_notif(&mut self, newpost: bool) {
         if newpost {
             self.text = "sns_notif".to_string();
             self.hitbox.0 = 241;

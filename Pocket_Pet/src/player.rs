@@ -16,6 +16,8 @@ pub struct Player{
     pub activity: i32,
     pub affection: i32,
     pub affectionmax: i32,
+    pub hunger: i32, 
+    pub cleanliness: i32,
     pub playanim: [bool; 5],
 }
 
@@ -29,6 +31,8 @@ impl Player {
             activity: 3,
             affection: 0,
             affectionmax: 10,
+            hunger: 5,
+            cleanliness: 5,
             playanim: [false, false, false, false, false],
         }
     }
@@ -46,9 +50,12 @@ impl Player {
         if self.active_check() {
             if luxary {
                 cost = 2;
+                self.hunger += 5;
             }
             if self.account >= cost {
                 self.account -= cost;
+                self.hunger += 3;
+                self.cleanliness -=1;
                 self.activity -= 1;
                 self.playanim[0] = true;
             }
@@ -61,9 +68,12 @@ impl Player {
         if self.active_check() {
             if luxary {
                 cost = 2;
+                self.cleanliness += 5;
             }
             if self.account >= cost {
                 self.account -= cost;
+                self.cleanliness += 3;
+                self.hunger -= 1;
                 self.activity -= 1;
                 self.playanim[1] = true;
             }           
@@ -75,6 +85,8 @@ impl Player {
         let cap = 5;
         if self.active_check() {
             self.account += self.salary;
+            self.hunger -= 1;
+            self.cleanliness -=1;
             self.activity -= 1;
             if self.account > cap {
                 self.account = 5;
@@ -87,6 +99,8 @@ impl Player {
 
     pub fn go_sleep(&mut self){
         self.playanim[4] = true;
+        self.hunger -= 1;
+        self.cleanliness -=1;
         self.activity = 3;
         self.day += 1;       
     }
@@ -96,6 +110,8 @@ impl Player {
         if self.active_check() {
             if self.account >= cost {
                 self.account -= cost;
+                self.hunger -= 1;
+                self.cleanliness -=1;
                 if self.affection < self.affectionmax {
                    self.affection += 1; 
                 }               
