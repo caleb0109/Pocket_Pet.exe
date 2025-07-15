@@ -1,9 +1,7 @@
-use crate::BorshDeserialize;
-use crate::BorshSerialize;
-use turbo::prelude::*;
+use turbo::*;
 //need to discuss more about tween and sprite usage
 #[derive(Debug, Clone, PartialEq, BorshDeserialize, BorshSerialize)]
-pub struct SocialMedia {
+pub struct SocialMedia{
     pub posted: bool,
     pub ypos: Vec<u32>,
     pub triggered: [bool; 3]
@@ -83,5 +81,9 @@ impl SocialMedia {
             log!("{:?}", self.ypos);
             return;
         }
+    }
+
+    pub fn comment(&mut self) {
+        
     }
 }
