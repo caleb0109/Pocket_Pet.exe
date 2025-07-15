@@ -1,6 +1,6 @@
 use turbo::*;
 //need to discuss more about tween and sprite usage
-#[derive(Debug, Clone, PartialEq, BorshDeserialize, BorshSerialize)]
+#[turbo::serialize]
 pub struct SocialMedia{
     pub posted: bool,
     pub ypos: Vec<u32>,
