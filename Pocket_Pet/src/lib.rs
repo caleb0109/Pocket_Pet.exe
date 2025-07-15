@@ -75,9 +75,25 @@ impl GameState {
     if gp.right.just_pressed() {
         //makes sure that the select doesn't go off the buttonsto the far right
         if self.select.0 >= 421 {
-            self.select.0 = 421
+            self.select.0 = 421;
         } else {
             self.select.0 += 39;
+        }
+    }
+    if gp.up.just_pressed() {
+        self.select.0 = 243;
+        if self.select.1 >= 71 {
+            self.select.1 = 71;
+        } else {
+            self.select.1 -= 71;
+        }
+    }
+    if gp.down.just_pressed() {
+        self.select.0 = 265;
+        if self.select.1 <= 0 {
+            self.select.1 = 0;
+        } else {
+            self.select.1 += 71;
         }
     }
 
