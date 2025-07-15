@@ -1,9 +1,7 @@
-use crate::BorshDeserialize;
-use crate::BorshSerialize;
-use turbo::prelude::*;
+use turbo::*;
 
 
-#[derive(Debug, Clone, PartialEq, BorshDeserialize, BorshSerialize)]
+#[turbo::serialize]
 pub struct ActionButton {
     pub hitbox: (i32, i32, i32, i32),
     pub text: String,
@@ -60,7 +58,7 @@ impl ActionButton {
 
     //checks if mouse clicked pipi
     pub fn pipiselect(&mut self) -> bool {
-        let m = pointer();
+        let m = pointer::world();
         let (mx, my) = m.xy();
         if self.hover(self.hitbox, mx, my) {
             if m.just_pressed() {
@@ -89,10 +87,10 @@ impl ActionButton {
     //checks if the mouse is hovering the button or not
     pub fn check(&mut self, mut select: (i32,i32)) -> i32{
         //gets the mouses world space position (its x and y on screen)
-        let m = pointer();
+        let m = pointer::world();
         let(mx, my) = m.xy();
         //gets gamepad player 1
-        let gp = gamepad(0);
+        let gp = gamepad::get(0);
 
         if self.hover(self.hitbox, mx, my) {
             if self.hitbox.1 > 30 { //checks if the button selected is Pipi

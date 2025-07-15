@@ -5,7 +5,7 @@ edition = "2024"
 
 [dependencies]
 mrdirector = "0.2.0"
-turbo = { version = "^3.0.0", package = "turbo-genesis-sdk" }
+turbo = { version = "4.0.0-alpha.8", package = "turbo-genesis-sdk" }
 
 [lib]
 crate-type = ["cdylib"]

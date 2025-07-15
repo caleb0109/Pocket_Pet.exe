@@ -1,13 +1,11 @@
 use std::fmt::format;
 
-use crate::BorshDeserialize;
-use crate::BorshSerialize;
-use turbo::prelude::*;
+use turbo::*;
 
 
 
 
-#[derive(Debug, Clone, PartialEq, BorshDeserialize, BorshSerialize)]
+#[turbo::serialize]
 pub struct Player{
     pub due_date: i32,
     pub day: i32,
