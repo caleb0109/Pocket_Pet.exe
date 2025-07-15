@@ -1,6 +1,5 @@
 use turbo::*;
 //need to discuss more about tween and sprite usage
-
 #[turbo::serialize]
 pub struct SocialMedia{
     pub posted: bool,
