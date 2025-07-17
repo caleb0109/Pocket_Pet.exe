@@ -14,8 +14,8 @@ pub struct Player{
     pub activity: i32,
     pub affection: i32,
     pub affectionmax: i32,
-    pub hunger: i32, 
-    pub cleanliness: i32,
+    pub hunger: u32, 
+    pub cleanliness: u32,
     pub playanim: [bool; 5],
 }
 
@@ -53,7 +53,7 @@ impl Player {
             if self.account >= cost {
                 self.account -= cost;
                 self.hunger += 3;
-                self.cleanliness -=1;
+                self.cleanliness = self.decrease(self.cleanliness);
                 self.activity -= 1;
                 self.playanim[0] = true;
             }
@@ -71,7 +71,7 @@ impl Player {
             if self.account >= cost {
                 self.account -= cost;
                 self.cleanliness += 3;
-                self.hunger -= 1;
+                self.hunger = self.decrease(self.hunger);
                 self.activity -= 1;
                 self.playanim[1] = true;
             }           
@@ -83,8 +83,8 @@ impl Player {
         let cap = 5;
         if self.active_check() {
             self.account += self.salary;
-            self.hunger -= 1;
-            self.cleanliness -=1;
+            self.hunger = self.decrease(self.hunger);
+            self.cleanliness = self.decrease(self.cleanliness);
             self.activity -= 1;
             if self.account > cap {
                 self.account = 5;
@@ -97,8 +97,8 @@ impl Player {
 
     pub fn go_sleep(&mut self){
         self.playanim[4] = true;
-        self.hunger -= 1;
-        self.cleanliness -=1;
+        self.hunger = self.decrease(self.hunger);
+        self.cleanliness = self.decrease(self.cleanliness);
         self.activity = 3;
         self.day += 1;       
     }
@@ -108,8 +108,8 @@ impl Player {
         if self.active_check() {
             if self.account >= cost {
                 self.account -= cost;
-                self.hunger -= 1;
-                self.cleanliness -=1;
+                self.hunger = self.decrease(self.hunger);
+                self.cleanliness = self.decrease(self.cleanliness);
                 if self.affection < self.affectionmax {
                    self.affection += 1; 
                 }               
@@ -119,5 +119,15 @@ impl Player {
             }               
         }       
     } 
+
+    pub fn decrease(& mut self, mut parameter: u32) -> u32{     
+        if parameter == 0 {
+            parameter == 0;
+            return parameter;
+        } else {
+           parameter -= 1; 
+           return parameter;
+        }
+    }
         
 }

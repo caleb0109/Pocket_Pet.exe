@@ -17,7 +17,7 @@ impl SocialMedia {
     }
 
     //checks if the criteria for a new post has been fulfilled
-    pub fn check_post(&mut self, unread: bool, hunger: i32, cleanliness: i32) -> bool {
+    pub fn check_post(&mut self, unread: bool, hunger: u32, cleanliness: u32) -> bool {
         sprite!("icon", x = 38, y = 8);
         sprite!("sns_posts#intro", x = 58, y = self.ypos[0]);
         text!("PIPI: hey guys! your favorite", x = 63, y = 62, font = "FIVEPIXELS", color = 0xfae3deff);
@@ -73,13 +73,11 @@ impl SocialMedia {
             let b = (a/2) * 73 + (a/2) * 87 + 8;
             self.ypos.push(b as u32);
             self.ypos.swap(0, a);
-            log!("{:?}", self.ypos);
             return;
         } else {
             let b = (a/2 + 1) * 73 + (a/2) * 87 + 8;
             self.ypos.push(b as u32);
             self.ypos.swap(0, a);
-            log!("{:?}", self.ypos);
             return;
         }
     }

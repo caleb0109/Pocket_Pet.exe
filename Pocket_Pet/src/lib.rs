@@ -36,7 +36,7 @@ impl GameState {
                 ActionButton::new("work", (265, 117, 34, 34),false),
                 ActionButton::new("allowance", (382, 117, 34, 34),false),
                 ActionButton::new("sleep", (421, 117, 34, 34),false),
-                ActionButton::new("PIPI",(330, 30, 60, 69),false),
+                ActionButton::new("PIPI",(320, 30, 81, 69),false),
                 ActionButton::new("sns", (243, 71, 19, 19), false),
                 ActionButton::new("return", (218, 71, 19, 19), false),
                 ActionButton::new("arrowup", (18, 125, 11, 14), false),
@@ -135,30 +135,31 @@ impl GameState {
     sprite!("screen", x = 264, y = 19);
 
     let day = self.player.day.to_string();
-    text!("DAY {}", &day; x = 269, y = 106, color = 0x22406eff, font = "small");
+    text!("DAY {}", &day; x = 273, y = 105, color = 0x22406eff, font = "FIVEPIXELS");
     
-    text!("TIME", x = 310, y = 106, color = 0x22406eff, font = "small");
+    text!("TIME", x = 315, y = 105, color = 0x22406eff, font = "FIVEPIXELS");
     match self.player.activity {
-        0 => sprite!("time#0", x = 335, y = 106),
-        1 => sprite!("time#1", x = 335, y = 106),
-        2 => sprite!("time#2", x = 335, y = 106),
-        3 => sprite!("time#3", x = 335, y = 106),
-        _ => sprite!("time#3", x = 335, y = 106),
+        0 => sprite!("time#0", x = 340, y = 106),
+        1 => sprite!("time#1", x = 340, y = 106),
+        2 => sprite!("time#2", x = 340, y = 106),
+        3 => sprite!("time#3", x = 340, y = 106),
+        _ => sprite!("time#3", x = 340, y = 106),
     }
 
-    text!("MONEY", x = 360, y = 106, color = 0x22406eff, font = "small");
+    text!("MONEY", x = 379, y = 105, color = 0x22406eff, font = "FIVEPIXELS");
     match self.player.account {
-            0 => sprite!("money#0", x = 390, y = 106),
-            1 => sprite!("money#1", x = 390, y = 106),
-            2 => sprite!("money#2", x = 390, y = 106),
-            3 => sprite!("money#3", x = 390, y = 106),
-            4 => sprite!("money#4", x = 390, y = 106),
-            5 => sprite!("money#5", x = 390, y = 106),
-            _ => sprite!("money#5", x = 390, y = 106),
+            0 => sprite!("money#0", x = 412, y = 106),
+            1 => sprite!("money#1", x = 412, y = 106),
+            2 => sprite!("money#2", x = 412, y = 106),
+            3 => sprite!("money#3", x = 412, y = 106),
+            4 => sprite!("money#4", x = 412, y = 106),
+            5 => sprite!("money#5", x = 412, y = 106),
+            _ => sprite!("money#5", x = 412, y = 106),
         }
         
 //Summon Pipi
-    self.uibuttons[5].summon();
+    self.uibuttons[5].summon(self.player.hunger, self.player.cleanliness);
+    //log!("{:?}", self.player.hunger);
 
 //Screen animations
     let anim = animation::get("screenanim");      
@@ -278,7 +279,7 @@ impl GameState {
 
     //Stats
     //text!("Affection: {:?}", self.player.affection; x = 285, y = 0, color = 0x22406eff);
-    text!("Day: {:?}", self.player.day; x = 450, y = 0, color = 0x22406eff, font = "FIVEPIXELS");
+    text!("hunger: {:?}", self.player.hunger; x = 430, y = 0, color = 0x22406eff, font = "FIVEPIXELS");
     text!("Pipi count: {:?}", self.uibuttons[5].count; x = 415, y = 10, color = 0x22406eff);
     // Save GameState
     }

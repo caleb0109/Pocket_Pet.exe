@@ -1,3 +1,5 @@
+use std::ptr::null;
+
 use turbo::*;
 
 
@@ -34,10 +36,11 @@ impl ActionButton {
     }
 
     //summons pipi (draw function only used by pipi)
-    pub fn summon(&mut self) {
+    pub fn summon(&mut self, hunger: u32, cleanliness: u32) {
         let selected = self.pipiselect();
         let anim = animation::get("PIPI");
-        if selected {
+
+        if selected{
             anim.use_sprite("PIPI#WAVE");
             anim.set_repeat(1);               
             self.count += 1;   
@@ -48,6 +51,17 @@ impl ActionButton {
             anim.set_repeat(1);
             self.count = 0;
         }
+
+        if hunger <= 1 && cleanliness <= 1{
+            anim.use_sprite("PIPI#HAPPY_hungrydirty");
+        } else if hunger <= 1 {
+            anim.use_sprite("PIPI#HAPPY_hungry");
+        } else if cleanliness <= 1 {
+            anim.use_sprite("PIPI#HAPPY_dirty");
+        } else {
+            anim.use_sprite("PIPI#HAPPY_good");
+        }
+        
 
         sprite!(
             animation_key = "PIPI",
