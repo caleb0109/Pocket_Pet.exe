@@ -1,10 +1,11 @@
-use turbo::*;
+use turbo::{serde_json::to_string, *};
 //need to discuss more about tween and sprite usage
 #[turbo::serialize]
 pub struct SocialMedia{
     pub posted: bool,
     pub ypos: Vec<u32>,
-    pub triggered: [bool; 3]
+    pub triggered: [bool; 3],
+    pub cActive: bool,
 }
 
 impl SocialMedia {
@@ -12,7 +13,8 @@ impl SocialMedia {
         Self {
             posted: false,
             ypos: vec![8],
-            triggered: [false, false, false]
+            triggered: [false, false, false],
+            cActive: false,
         }
     }
 
@@ -60,7 +62,7 @@ impl SocialMedia {
                     }     
                 }
                 _ => {
-                    //log!("fuck");
+                    //log!("fuck"); bruh LOL
                 }
             }
         }
@@ -82,7 +84,4 @@ impl SocialMedia {
         }
     }
 
-    pub fn comment(&mut self) {
-        
-    }
 }

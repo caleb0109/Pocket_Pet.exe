@@ -11,6 +11,7 @@ use social_media::SocialMedia;
 use turbo::*;
 use mrdirector;
 
+
 #[turbo::game]
 struct GameState{
     screen: u8,
@@ -21,8 +22,8 @@ struct GameState{
     select: (i32,i32),
     frame: u32,
     tweens:HashMap<String, Tween<f32>>,
-    cameraPos: (i32,i32)
-
+    cameraPos: (i32,i32),
+    comment: String,
 } 
 
 
@@ -51,8 +52,9 @@ impl GameState {
                 ("social_media_change".to_string(), Tween::new(0.)),
                 ("main_screen_change".to_string(), Tween::new(0.)),
             ]),
-            cameraPos: (360, 80)
-            }
+            cameraPos: (360, 80),
+            comment: "".to_string(),
+        }
     }
     pub fn update(&mut self) {
 
@@ -247,10 +249,12 @@ impl GameState {
                     //     Tween::new(360.).set(120.).duration(120).ease(Easing::EaseInOutSine)
                     // );
                     self.unread = false;
+                    self.sns.cActive = true;
                     self.uibuttons[6].action = false;
                 }
                 7 => {
                     self.cameraPos.0 = 360;
+                    self.sns.cActive = false;
                     self.uibuttons[7].action = false;
                 }
                 8 => {
@@ -270,18 +274,38 @@ impl GameState {
         }
     }
 
-    //self.uibuttons[7].tempDraw();
-
     //Social Media UI
     sprite!("sns_bg", x = 32, y = 0);
     self.unread = self.sns.check_post(self.unread, self.player.hunger, self.player.cleanliness);
     self.sns.make_post();
 
+    if self.sns.cActive {
+        let keyboard = keyboard::get();
+            
+    // Append keyboard input to the buffer
+        for c in keyboard.chars() {
+            match c {
+                // Clear the buffer when Enter is pressed
+                '\n' => self.comment.clear(),
+                // Append all other chars to the buffer
+                ch => self.comment.push(ch),
+            }
+        }
+ 
+        // Remove the last character when backspace is pressed
+        if keyboard.backspace().just_pressed() {
+            self.comment.pop();
+        }
+    }
+    text!("HERE {:?}", self.comment; x = 0, y = 10, color = 0x22406eff);
+
     //Stats
     //text!("Affection: {:?}", self.player.affection; x = 285, y = 0, color = 0x22406eff);
     text!("hunger: {:?}", self.player.hunger; x = 430, y = 0, color = 0x22406eff, font = "FIVEPIXELS");
     text!("Pipi count: {:?}", self.uibuttons[5].count; x = 415, y = 10, color = 0x22406eff);
+    text!("Comment Active {:?}", self.sns.cActive; x = 0, y = 0, color = 0x22406eff, font = "FIVEPIXELS");
     // Save GameState
     }
 }
+
 
