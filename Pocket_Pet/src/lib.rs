@@ -259,9 +259,11 @@ impl GameState {
                 }
                 8 => {
                     self.uibuttons[8].action = false;
+                    self.cameraPos.1 -= 160;
                 }
                 9 => {
                     self.uibuttons[9].action = false;
+                    self.cameraPos.1 += 160;
                 }
                 _ => {
                     text!("didn't work", x = 30, y = 40);
@@ -278,6 +280,7 @@ impl GameState {
     sprite!("sns_bg", x = 32, y = 0);
     self.unread = self.sns.check_post(self.unread, self.player.hunger, self.player.cleanliness);
     self.sns.make_post();
+    //self.sns.move_up();
 
     if self.sns.cActive {
         let keyboard = keyboard::get();
