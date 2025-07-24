@@ -122,7 +122,6 @@ impl Player {
 
     pub fn decrease(& mut self, mut parameter: u32) -> u32{     
         if parameter == 0 {
-            parameter == 0;
             return parameter;
         } else {
            parameter -= 1; 

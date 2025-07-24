@@ -259,11 +259,16 @@ impl GameState {
                 }
                 8 => {
                     self.uibuttons[8].action = false;
-                    self.cameraPos.1 -= 160;
+                    self.sns.arrowup();
+                    // if self.sns.arrowup() == false {
+                    //     self.uibuttons[8].text = "emptyarrow".to_string();
+                    // } else {
+                    //     self.uibuttons[8].text = "arrowup".to_string();
+                    // }
                 }
                 9 => {
                     self.uibuttons[9].action = false;
-                    self.cameraPos.1 += 160;
+                    self.sns.arrowdown();
                 }
                 _ => {
                     text!("didn't work", x = 30, y = 40);
@@ -279,8 +284,9 @@ impl GameState {
     //Social Media UI
     sprite!("sns_bg", x = 32, y = 0);
     self.unread = self.sns.check_post(self.unread, self.player.hunger, self.player.cleanliness);
-    self.sns.make_post();
-    //self.sns.move_up();
+    //self.sns.make_post();
+    //self.sns.draw_posts();
+    self.sns.draw_page();
 
     if self.sns.cActive {
         let keyboard = keyboard::get();
@@ -305,6 +311,7 @@ impl GameState {
     //Stats
     //text!("Affection: {:?}", self.player.affection; x = 285, y = 0, color = 0x22406eff);
     text!("hunger: {:?}", self.player.hunger; x = 430, y = 0, color = 0x22406eff, font = "FIVEPIXELS");
+    text!("cleanliness: {:?}", self.player.cleanliness; x = 410, y = 20, color = 0x22406eff, font = "FIVEPIXELS");
     text!("Pipi count: {:?}", self.uibuttons[5].count; x = 415, y = 10, color = 0x22406eff);
     text!("Comment Active {:?}", self.sns.cActive; x = 0, y = 0, color = 0x22406eff, font = "FIVEPIXELS");
     // Save GameState

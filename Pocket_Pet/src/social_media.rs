@@ -5,6 +5,7 @@ pub struct SocialMedia{
     pub posted: bool,
     pub ypos: Vec<u32>,
     pub posts: Vec<String>,
+    pub pages: Vec<bool>,
     pub triggered: [bool; 3],
     pub cActive: bool,
 }
@@ -15,6 +16,7 @@ impl SocialMedia {
             posted: false,
             ypos: vec![8],
             posts: vec!["sns_posts#intro".to_string()],
+            pages: vec![true],
             triggered: [false, false, false],
             cActive: false,
         }
@@ -22,23 +24,21 @@ impl SocialMedia {
 
     //checks if the criteria for a new post has been fulfilled
     pub fn check_post(&mut self, unread: bool, hunger: u32, cleanliness: u32) -> bool {
-        sprite!("icon", x = 38, y = self.ypos[0]);
-        sprite!("sns_posts#intro", x = 58, y = self.ypos[0]);
-        text!("PIPI: hey guys! your favorite", x = 63, y = 62, font = "FIVEPIXELS", color = 0xfae3deff);
-        text!("virtual pet, pipi is here!!!", x = 63, y = 68, font = "FIVEPIXELS", color = 0xfae3deff);
 
-        if hunger == 0 && !self.triggered[0] {
-            self.move_post();
+        if hunger == 0 && !self.triggered[0] {              
+            self.posts.insert(0, "sns_posts#hunger".to_string());
+            self.posted = true; 
             self.triggered[0] = true;
-            self.posted = true;
-            return self.posted;  
+            return self.posted;
             
         }
-        if cleanliness == 0 && !self.triggered[1] {
-            self.move_post();
-            self.triggered[1] = true;
+        
+        if cleanliness == 0 && !self.triggered[1] {           
+            self.posts.insert(0, "sns_posts#clean".to_string());
             self.posted = true;
+            self.triggered[1] = true;
             return self.posted;
+            
         }
 
         if unread == true {
@@ -51,65 +51,87 @@ impl SocialMedia {
         }      
     }
 
-    //makes post depending on if the criteria was met
-    pub fn make_post(&mut self) {
-        for n in 0..3 {
-            match n {
-                0 => {
-                    if self.triggered[0] == true {
-                        let a = self.ypos.last().unwrap();
-                        sprite!("sns_posts#hunger", x = 58, y = *a);
-                        sprite!("icon", x = 38, y = *a);
-                        //log!("{:?}", a);
-                    }     
-                }
-                1 => {
-                    if self.triggered[1] == true {
-                        let a = self.ypos.last().unwrap();
-                        sprite!("sns_posts#clean", x = 58, y = *a);
-                        sprite!("icon", x = 38, y = *a);
-                    }
-                }
-                _ => {
-                    //log!("fuck"); bruh LOL
-                }
-            }
+    //draws posts on each page depending on the page number and number of posts
+    pub fn draw_posts(&mut self, pagenum: usize) {
+        //only one post exists, aka the intro post
+        if self.posts.len() == 1{
+            sprite!(&self.posts[0], x = 58, y = 8); 
+            self.draw_misc(1);
+        //the last page of an odd number of posts; there is only one post on this page  
+        } else if self.posts.len() % 2 == 1 && pagenum == self.pages.len() - 1 {
+            sprite!(&self.posts[pagenum * 2], x = 58, y = 8);
+            self.draw_misc(1);
+        //pages with even number of posts, or the first and middle pages of odd number posts
+        }else {
+            sprite!(&self.posts[pagenum*2], x = 58, y = 8);
+            sprite!(&self.posts[pagenum*2 + 1], x = 58, y = 81);
+            self.draw_misc(2);
+        }
+
+    }
+
+    //checks which page the sns is currently on and draws it
+    pub fn draw_page(& mut self) {
+        let postslength = self.posts.len();
+        let pageslength = self.pages.len();
+
+        //increases number of pages depending on number of posts
+        if postslength/2 == pageslength && postslength % 2 == 1{
+            self.pages.push(false);
+        } else if postslength/2 > pageslength {
+            self.pages.push(false);
+        } 
+        
+        //calls draw post function depending on which page player is currently on
+        for n in 0..self.pages.len() {
+            if self.pages[n] == true {
+                self.draw_posts(n);
+            }   
         }
     }
 
-    //moves new posts down the feed
-    pub fn move_post(&mut self) {
-        let a = self.ypos.len();
-        if a % 2 == 0 {
-            let b = (a/2) * 73 + (a/2) * 87 + 8;
-            self.ypos.insert(0, b as u32);
-            //self.ypos.swap(0, a);
-            log!("{:?}", self.ypos);
-            return;
+    //draw icon and other buttons
+    pub fn draw_misc(&mut self, posts: u32) {
+        if posts == 1 {
+            sprite!("icon", x = 38, y = 8);
         } else {
-            let b = (a/2 + 1) * 73 + (a/2) * 87 + 8;
-            self.ypos.insert(0, b as u32);
-            //self.ypos.swap(0, a);
-            log!("{:?}", self.ypos);
-            return;
+            sprite!("icon", x = 38, y = 8);
+            sprite!("icon", x = 38, y = 81);
         }
     }
 
-    pub fn move_up(&mut self) {
-        // self.posts.iter().foreach(|n, posts| {
-            
-        // })
-        for (n, name) in self.posts.iter().enumerate() {
-            if self.posts.len() == 1 {
-                sprite!(name, x = 58, y = 8);
-            }
-            else if n % 2 == 0 {
-                sprite!(name, x = 58, y = 81);
-                
-            } else {
-                sprite!(name, x = 58, y = 8);
-                log!("{:?}", name);
-            }
+    //called when pressing down arrow, moves which element in page vector is true
+    pub fn arrowdown(& mut self) -> bool {
+        let mut position = self.pages.iter().position(|x| *x == true).unwrap();
+        let mut selectable = true;
+        if self.pages.len() - 1 > position {
+            self.pages[position] = false;
+            position += 1;
+            self.pages[position] = true;
+            return selectable;
+
+        } else {
+            self.pages[position] = true;
+            selectable = false;
+            return selectable;
+
+        }
+    }
+
+    //called when pressing up arrow, moves which element in page vector is true
+    //pages[0] is the top, pressing the down arrow is equal to increasing the index of the page vector
+    pub fn arrowup(& mut self) -> bool {
+        let mut position = self.pages.iter().position(|x| *x == true). unwrap();
+        let mut selectable = true;
+        if position == 0 {
+            self.pages[position] = true;
+            selectable = false;
+            return selectable;
+        } else {
+            self.pages[position] = false;
+            position -= 1;
+            self.pages[position] = true;
+            return selectable;
         }
     }
 

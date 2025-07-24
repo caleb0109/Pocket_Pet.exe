@@ -59,7 +59,7 @@ impl ActionButton {
         } else if cleanliness <= 1 {
             anim.use_sprite("PIPI#HAPPY_dirty");
         } else {
-            anim.use_sprite("PIPI#HAPPY_good");
+            //anim.use_sprite("PIPI#HAPPY_good");
         }
         
 
