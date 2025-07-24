@@ -1,4 +1,5 @@
 use turbo::{serde_json::to_string, *};
+use crate::button::button::ActionButton;
 //need to discuss more about tween and sprite usage
 #[turbo::serialize]
 pub struct SocialMedia{
@@ -6,6 +7,7 @@ pub struct SocialMedia{
     pub ypos: Vec<u32>,
     pub posts: Vec<String>,
     pub pages: Vec<bool>,
+    pub comments: Vec<ActionButton>,
     pub triggered: [bool; 3],
     pub cActive: bool,
 }
@@ -17,6 +19,9 @@ impl SocialMedia {
             ypos: vec![8],
             posts: vec!["sns_posts#intro".to_string()],
             pages: vec![true],
+            comments: vec![ActionButton::new("comment", (60,80,100,10), false),
+                           ActionButton::new("comment", (60,150,100,10), false),
+                           ActionButton::new("comment", (60,220,100,10), false)],
             triggered: [false, false, false],
             cActive: false,
         }
@@ -24,9 +29,11 @@ impl SocialMedia {
 
     //checks if the criteria for a new post has been fulfilled
     pub fn check_post(&mut self, unread: bool, hunger: u32, cleanliness: u32) -> bool {
+        self.comments[0].tempDraw();
 
         if hunger == 0 && !self.triggered[0] {              
             self.posts.insert(0, "sns_posts#hunger".to_string());
+            self.comments[1].tempDraw();
             self.posted = true; 
             self.triggered[0] = true;
             return self.posted;
@@ -35,6 +42,7 @@ impl SocialMedia {
         
         if cleanliness == 0 && !self.triggered[1] {           
             self.posts.insert(0, "sns_posts#clean".to_string());
+            self.comments[2].tempDraw();
             self.posted = true;
             self.triggered[1] = true;
             return self.posted;
@@ -134,5 +142,35 @@ impl SocialMedia {
             return selectable;
         }
     }
+
+    pub fn comment_type(&mut self, current: usize) {
+        let mut comment = "".to_string();
+        let keyboard = keyboard::get(); 
+            // Append keyboard input to the buffer
+            for c in keyboard.chars() {
+                match c {
+                    // Clear the buffer when Enter is pressed
+                    '\n' => {
+                        comment.clear();
+                        self.cActive = false;
+                    }
+
+                    // Append all other chars to the buffer
+                    ch => comment.push(ch),
+                }
+            }
+ 
+            if keyboard.escape().just_pressed() {
+                comment.clear();
+                self.cActive = false;
+            }
+            // Remove the last character when backspace is pressed
+            if keyboard.backspace().just_pressed() {
+                comment.pop();
+            }
+            text!("{:?}", comment; x = self.comments[current].hitbox.0, y = self.comments[current].hitbox.1, color = 0x22406eff, font = "FIVEPIXELS");
+            text!("{:?}", current; x = 0, y = 10, color = 0x22406eff);
+    }
+
 
 }

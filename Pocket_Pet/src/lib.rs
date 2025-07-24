@@ -6,7 +6,7 @@ mod social_media;
 
 use std::collections::HashMap;
 use player::Player;
-use button::ActionButton;
+use button::button::ActionButton;
 use social_media::SocialMedia;
 use turbo::*;
 use mrdirector;
@@ -249,26 +249,38 @@ impl GameState {
                     //     Tween::new(360.).set(120.).duration(120).ease(Easing::EaseInOutSine)
                     // );
                     self.unread = false;
-                    self.sns.cActive = true;
+                    self.sns.cActive = false;
                     self.uibuttons[6].action = false;
                 }
                 7 => {
                     self.cameraPos.0 = 360;
+                    for n in 0..self.sns.comments.len() {
+                        if self.sns.comments[n].action {
+                            self.sns.comments[n].action = false;
+                        }
+                    }
                     self.sns.cActive = false;
+                    self.comment = "".to_string();
                     self.uibuttons[7].action = false;
                 }
                 8 => {
                     self.uibuttons[8].action = false;
                     self.sns.arrowup();
-                    // if self.sns.arrowup() == false {
-                    //     self.uibuttons[8].text = "emptyarrow".to_string();
-                    // } else {
-                    //     self.uibuttons[8].text = "arrowup".to_string();
+                    // self.uibuttons[8].hitbox.1 -=160;
+                    // self.uibuttons[9].hitbox.1 -=160;
+                    // if self.cameraPos.1 < 80 {
+                    //     self.cameraPos.1 = 80;
+                    //     self.uibuttons[8].hitbox.1 = 125;
+                    //     self.uibuttons[9].hitbox.1 = 141;
                     // }
                 }
                 9 => {
                     self.uibuttons[9].action = false;
                     self.sns.arrowdown();
+                    // self.cameraPos.1 += 160;
+                    // self.uibuttons[8].hitbox.1 +=160;
+                    // self.uibuttons[9].hitbox.1 +=160;
+                    
                 }
                 _ => {
                     text!("didn't work", x = 30, y = 40);
@@ -284,36 +296,56 @@ impl GameState {
     //Social Media UI
     sprite!("sns_bg", x = 32, y = 0);
     self.unread = self.sns.check_post(self.unread, self.player.hunger, self.player.cleanliness);
-    //self.sns.make_post();
-    //self.sns.draw_posts();
     self.sns.draw_page();
 
-    if self.sns.cActive {
-        let keyboard = keyboard::get();
-            
-    // Append keyboard input to the buffer
-        for c in keyboard.chars() {
-            match c {
-                // Clear the buffer when Enter is pressed
-                '\n' => self.comment.clear(),
-                // Append all other chars to the buffer
-                ch => self.comment.push(ch),
-            }
-        }
- 
-        // Remove the last character when backspace is pressed
-        if keyboard.backspace().just_pressed() {
-            self.comment.pop();
-        }
-    }
-    text!("HERE {:?}", self.comment; x = 0, y = 10, color = 0x22406eff);
 
+    let mut currCom = 0;
+    for n in 0..self.sns.comments.len() {
+        if !self.sns.cActive{
+            self.select.0 = self.sns.comments[n].check(self.select);
+        }
+        if self.sns.comments[n].action{
+            self.sns.cActive = true;
+            currCom = n;
+            let keyboard = keyboard::get();
+            
+            // Append keyboard input to the buffer
+            for c in keyboard.chars() {
+                match c {
+                    // Clear the buffer when Enter is pressed
+                    '\n' => {
+                        self.comment.clear();
+                        self.sns.cActive = false;
+                        self.sns.comments[n].action = false;
+                    }
+
+                    // Append all other chars to the buffer
+                    ch => self.comment.push(ch),
+                }
+            }
+ 
+            if keyboard.escape().just_pressed() {
+                self.comment.clear();
+                self.sns.cActive = false;
+                self.sns.comments[n].action = false;
+            }
+            // Remove the last character when backspace is pressed
+            if keyboard.backspace().just_pressed() {
+                self.comment.pop();
+            }
+            text!("{:?}", self.comment; x = self.sns.comments[n].hitbox.0, y = self.sns.comments[n].hitbox.1, color = 0x22406eff, font = "FIVEPIXELS");
+            text!("{:?}", currCom; x = 0, y = 10, color = 0x22406eff);
+        }
+        
+    }
+
+    
     //Stats
     //text!("Affection: {:?}", self.player.affection; x = 285, y = 0, color = 0x22406eff);
-    text!("hunger: {:?}", self.player.hunger; x = 430, y = 0, color = 0x22406eff, font = "FIVEPIXELS");
-    text!("cleanliness: {:?}", self.player.cleanliness; x = 410, y = 20, color = 0x22406eff, font = "FIVEPIXELS");
-    text!("Pipi count: {:?}", self.uibuttons[5].count; x = 415, y = 10, color = 0x22406eff);
-    text!("Comment Active {:?}", self.sns.cActive; x = 0, y = 0, color = 0x22406eff, font = "FIVEPIXELS");
+    //text!("hunger: {:?}", self.player.hunger; x = 430, y = 0, color = 0x22406eff, font = "FIVEPIXELS");
+    //text!("Pipi count: {:?}", self.uibuttons[5].count; x = 415, y = 10, color = 0x22406eff);
+    text!("Comment ACTIVE {:?}", self.sns.cActive; x = 0, y = 0, color = 0x22406eff);
+    
     // Save GameState
     }
 }
