@@ -4,7 +4,7 @@ mod button;
 mod player;
 mod social_media;
 
-use std::collections::HashMap;
+use std::{collections::HashMap, thread::AccessError};
 use player::Player;
 use button::button::ActionButton;
 use social_media::SocialMedia;
@@ -15,7 +15,7 @@ use mrdirector;
 #[turbo::game]
 struct GameState{
     screen: u8,
-    uibuttons: [ActionButton; 10],
+    uibuttons: [ActionButton; 12],
     player: Player,
     sns: SocialMedia,
     unread: bool,
@@ -24,6 +24,7 @@ struct GameState{
     tweens:HashMap<String, Tween<f32>>,
     cameraPos: (i32,i32),
     comment: String,
+    allComments: Vec<String>,
 } 
 
 
@@ -41,7 +42,9 @@ impl GameState {
                 ActionButton::new("sns", (243, 71, 19, 19), false),
                 ActionButton::new("return", (218, 71, 19, 19), false),
                 ActionButton::new("arrowup", (18, 125, 11, 14), false),
-                ActionButton::new("arrowdown", (18, 141, 11, 14), false)
+                ActionButton::new("arrowdown", (18, 141, 11, 14), false),
+                ActionButton::new("comment", (-230, 127, 200, 13), false),
+                ActionButton::new("sns", (-22, 71, 19, 19), false)
             ],
             player: Player::new(),
             sns: SocialMedia::new(),
@@ -54,6 +57,7 @@ impl GameState {
             ]),
             cameraPos: (360, 80),
             comment: "".to_string(),
+            allComments: vec![],
         }
     }
     pub fn update(&mut self) {
@@ -67,6 +71,7 @@ impl GameState {
     //then it moves the selected variable properly
     let gp = gamepad::get(0);
     if gp.left.just_pressed() {
+        self.select.1 = 117;
         //makes sure that the select doesn't go off the buttonsto the far left
         if self.select.0 <= 265 {
             self.select.0 = 265;
@@ -75,6 +80,7 @@ impl GameState {
         }
     }
     if gp.right.just_pressed() {
+        self.select.1 = 117;
         //makes sure that the select doesn't go off the buttonsto the far right
         if self.select.0 >= 421 {
             self.select.0 = 421;
@@ -92,8 +98,8 @@ impl GameState {
     }
     if gp.down.just_pressed() {
         self.select.0 = 265;
-        if self.select.1 <= 0 {
-            self.select.1 = 0;
+        if self.select.1 <= 117 {
+            self.select.1 = 117;
         } else {
             self.select.1 += 71;
         }
@@ -210,8 +216,8 @@ impl GameState {
     // Draw
     let can_click = anim.sprite_name() == "screen_anims#empty";
     
-    for n in 0..10 {
-        self.select.0 = self.uibuttons[n].check(self.select);
+    for n in 0..self.uibuttons.len() {
+        self.select = self.uibuttons[n].check(self.select);
         if self.uibuttons[n].action && !can_click {
             self.uibuttons[n].action = false;
         }
@@ -250,6 +256,7 @@ impl GameState {
                     // );
                     self.unread = false;
                     self.sns.cActive = false;
+                    self.select = (218, 71);
                     self.uibuttons[6].action = false;
                 }
                 7 => {
@@ -261,6 +268,7 @@ impl GameState {
                     }
                     self.sns.cActive = false;
                     self.comment = "".to_string();
+                    self.select = (243, 71);
                     self.uibuttons[7].action = false;
                 }
                 8 => {
@@ -282,61 +290,72 @@ impl GameState {
                     // self.uibuttons[9].hitbox.1 +=160;
                     
                 }
+                10 => {
+                    self.sns.cActive = true;
+                }
+                11 => {
+                    self.uibuttons[11].action = false;
+                    self.cameraPos.0 = 120;
+                    self.select = (218, 71);
+                }
+                
                 _ => {
                     text!("didn't work", x = 30, y = 40);
                 }
             }
         }
-        if n != 5{
+        if n != 5 || n != 10{
             self.uibuttons[n].draw();
             self.uibuttons[6].sns_notif(self.unread);
         }
     }
-
+    self.uibuttons[10].tempDraw();
     //Social Media UI
     sprite!("sns_bg", x = 32, y = 0);
     self.unread = self.sns.check_post(self.unread, self.player.hunger, self.player.cleanliness);
     self.sns.draw_page();
 
-
-    let mut currCom = 0;
     for n in 0..self.sns.comments.len() {
-        if !self.sns.cActive{
-            self.select.0 = self.sns.comments[n].check(self.select);
-        }
-        if self.sns.comments[n].action{
-            self.sns.cActive = true;
-            currCom = n;
-            let keyboard = keyboard::get();
-            
-            // Append keyboard input to the buffer
-            for c in keyboard.chars() {
-                match c {
-                    // Clear the buffer when Enter is pressed
-                    '\n' => {
-                        self.comment.clear();
-                        self.sns.cActive = false;
-                        self.sns.comments[n].action = false;
-                    }
-
-                    // Append all other chars to the buffer
-                    ch => self.comment.push(ch),
+        self.select = self.sns.comments[n].check(self.select);
+        if self.sns.comments[n].action {
+            match n {
+                _ => {
+                    self.cameraPos.0 = -120;
+                    self.sns.comments[n].action = false;
                 }
             }
- 
-            if keyboard.escape().just_pressed() {
-                self.comment.clear();
-                self.sns.cActive = false;
-                self.sns.comments[n].action = false;
-            }
-            // Remove the last character when backspace is pressed
-            if keyboard.backspace().just_pressed() {
-                self.comment.pop();
-            }
-            text!("{:?}", self.comment; x = self.sns.comments[n].hitbox.0, y = self.sns.comments[n].hitbox.1, color = 0x22406eff, font = "FIVEPIXELS");
-            text!("{:?}", currCom; x = 0, y = 10, color = 0x22406eff);
         }
-        
+    }
+
+    if self.sns.cActive {
+        let keyboard = keyboard::get();
+            
+        // Append keyboard input to the buffer
+        for c in keyboard.chars() {
+            match c {
+                // Clear the buffer when Enter is pressed
+                '\n' => {
+                    self.allComments.push(self.comment.to_string());
+                    self.comment.clear();
+                    self.uibuttons[10].action = false;
+                    self.sns.cActive = false;
+                }
+
+                // Append all other chars to the buffer
+                ch => self.comment.push(ch),
+            }
+        }
+ 
+        if keyboard.escape().just_pressed() {
+            self.comment.clear();
+            self.sns.cActive = false;
+            self.uibuttons[10].action =false;
+        }
+        // Remove the last character when backspace is pressed
+        if keyboard.backspace().just_pressed() {
+            self.comment.pop();
+        }
+        text!("{:?}", self.comment; x = self.uibuttons[10].hitbox.0, y = self.uibuttons[10].hitbox.1, color = 0x22406eff, font = "FIVEPIXELS");
     }
 
     
@@ -345,6 +364,11 @@ impl GameState {
     //text!("hunger: {:?}", self.player.hunger; x = 430, y = 0, color = 0x22406eff, font = "FIVEPIXELS");
     //text!("Pipi count: {:?}", self.uibuttons[5].count; x = 415, y = 10, color = 0x22406eff);
     text!("Comment ACTIVE {:?}", self.sns.cActive; x = 0, y = 0, color = 0x22406eff);
+    let mut movingY = 20;
+    for n in 0..self.allComments.len() {
+        text!("{:?}", self.allComments[n]; x = -230, y = movingY, color = 0x22406eff);
+        movingY += 10;
+    }
     
     // Save GameState
     }

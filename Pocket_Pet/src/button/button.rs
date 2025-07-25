@@ -114,7 +114,7 @@ impl ActionButton {
     }
     
     //checks if the mouse is hovering the button or not
-    pub fn check(&mut self, mut select: (i32,i32)) -> i32{
+    pub fn check(&mut self, mut select: (i32,i32)) -> (i32,i32){
         //gets the mouses world space position (its x and y on screen)
         let m = pointer::world();
         let(mx, my) = m.xy();
@@ -125,12 +125,12 @@ impl ActionButton {
             if self.hitbox.1 > 30 { //checks if the button selected is Pipi
                 if m.just_pressed(){
                     self.action = true; // Call function local to button
-                    return self.hitbox.0;
+                    return (self.hitbox.0, self.hitbox.1);
                 }else {
-                    return self.hitbox.0;
+                    return (self.hitbox.0, self.hitbox.1);
                 }
             } else {
-                return select.0;
+                return select;
             }
             
         } 
@@ -139,20 +139,20 @@ impl ActionButton {
             // Check if button is pressed (press z)
             if gp.a.just_pressed(){
                 self.action = true; // Call function local to button
-                return self.hitbox.0;
+                return (self.hitbox.0, self.hitbox.1);
             }else {
-                return self.hitbox.0;
+                return (self.hitbox.0, self.hitbox.1);
             }
         } else {
-            return select.0;
+            return select;
         }
         //made copy of if statement to check if selected is hovering
         
     }
 
-    pub fn hover(&mut self, hitbox: (i32, i32, i32, i32), mx: i32, my: i32) -> bool {
-        if mx >= hitbox.0 && mx <= hitbox.0 + hitbox.2
-        && my >= hitbox.1 && my <= hitbox.1 + hitbox.3 {
+    pub fn hover(&mut self, hitbox: (i32, i32, i32, i32), x: i32, y: i32) -> bool {
+        if x >= hitbox.0 && x <= hitbox.0 + hitbox.2
+        && y >= hitbox.1 && y <= hitbox.1 + hitbox.3 {
             self.hovered = true;
             return true;
         } else {
