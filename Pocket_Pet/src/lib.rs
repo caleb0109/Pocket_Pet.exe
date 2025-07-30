@@ -29,7 +29,7 @@ struct GameState{
 
 
 impl GameState {
-    fn new() -> Self {
+    pub fn new() -> Self {
         Self {
             screen: 0,
             uibuttons: [
@@ -62,11 +62,10 @@ impl GameState {
     }
     pub fn update(&mut self) {
 
-    if self.player.day == self.player.due_date {
-        //self::new();
-    }
-
     camera::set_xy(self.cameraPos.0,self.cameraPos.1);
+    if self.cameraPos.0 == 120 { 
+        self.select = (218, 71);
+    }
     //checks if left or right has been inputted and if it has
     //then it moves the selected variable properly
     let gp = gamepad::get(0);
@@ -106,13 +105,13 @@ impl GameState {
     }
 
     //Background elements
-    // match self.player.activity {
-    //     3 => clear(0xfae3deff),
-    //     2 => clear(0xc47a87ff),
-    //     1 => clear(0x22406eff),
-    //     _ => clear(0xfae3deff),
-    // }
-    clear(0xfae3deff);
+    match self.player.activity {
+        3 => clear(0xfae3deff),
+        2 => clear(0xc47a87ff),
+        1 => clear(0x22406eff),
+        0 => clear(0x22406eff),
+        _ => clear(0xfae3deff),
+    }
     let frame = (self.frame as i32) / 2;
     for col in 0..27 {
         for row in 0..9 {
@@ -215,17 +214,22 @@ impl GameState {
     //goes through for loop to see which button was pressed
     // Draw
     let can_click = anim.sprite_name() == "screen_anims#empty";
-    
     for n in 0..self.uibuttons.len() {
         self.select = self.uibuttons[n].check(self.select);
         if self.uibuttons[n].action && !can_click {
             self.uibuttons[n].action = false;
+        }
+        if n < 4 {
+            if self.player.activity == 0 {
+                self.uibuttons[n].action = false;
+            }
         }
         if self.uibuttons[n].action && can_click{
             //log!("{:?}", n);
             match n {
                 0 => {
                     self.player.feed(self.uibuttons[0].luxury);
+                    
                     self.uibuttons[0].action = false;
                 }
                 1 => {
@@ -256,7 +260,6 @@ impl GameState {
                     // );
                     self.unread = false;
                     self.sns.cActive = false;
-                    self.select = (218, 71);
                     self.uibuttons[6].action = false;
                 }
                 7 => {
@@ -304,8 +307,29 @@ impl GameState {
                 }
             }
         }
-        if n != 5 || n != 10{
-            self.uibuttons[n].draw();
+        if n != 5 || n != 10 {
+            if self.player.activity == 0 {
+                if n < 4 {
+                    self.uibuttons[n].nonselect();
+                } else {
+                    self.uibuttons[n].draw();
+                }
+            } else if self.player.account == 0 {
+                if n < 4 && n != 2 {
+                    self.uibuttons[n].nonselect();
+                } else {
+                    self.uibuttons[n].draw();
+                }
+            } else if self.player.account == 1 {
+                if n == 3 {
+                    self.uibuttons[3].nonselect();
+                } else {
+                    self.uibuttons[n].draw();
+                }
+            } else {
+                self.uibuttons[n].draw();
+            }
+            
             self.uibuttons[6].sns_notif(self.unread);
         }
     }
@@ -363,13 +387,14 @@ impl GameState {
     //text!("Affection: {:?}", self.player.affection; x = 285, y = 0, color = 0x22406eff);
     //text!("hunger: {:?}", self.player.hunger; x = 430, y = 0, color = 0x22406eff, font = "FIVEPIXELS");
     //text!("Pipi count: {:?}", self.uibuttons[5].count; x = 415, y = 10, color = 0x22406eff);
-    text!("Comment ACTIVE {:?}", self.sns.cActive; x = 0, y = 0, color = 0x22406eff);
     let mut movingY = 20;
     for n in 0..self.allComments.len() {
-        text!("{:?}", self.allComments[n]; x = -230, y = movingY, color = 0x22406eff);
+        text!("{:?}", self.allComments[n]; x = -230, y = movingY);
         movingY += 10;
     }
-    
+    // if self.player.day > self.player.due_date {
+    //     GameState::new();
+    // }
     // Save GameState
     }
 }

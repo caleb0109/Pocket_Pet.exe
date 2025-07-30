@@ -22,7 +22,7 @@ pub struct Player{
 impl Player {
     pub fn new()-> Self {
         Self{
-            due_date: 14,
+            due_date: 2,
             day: 0,
             account: 4,
             salary: 3,

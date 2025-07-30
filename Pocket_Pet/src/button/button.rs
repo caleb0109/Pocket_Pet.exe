@@ -35,6 +35,9 @@ impl ActionButton {
         };
     }
 
+    pub fn nonselect(&self) {
+        sprite!(&self.text, x = self.hitbox.0, y = self.hitbox.1, color = 0x323b42ff);
+    }
      pub fn tempDraw(&self) {
         // Color references
         let (c1, c2): (u32, u32) = match self.hovered {
