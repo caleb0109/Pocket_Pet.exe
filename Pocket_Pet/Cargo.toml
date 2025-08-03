@@ -3,9 +3,12 @@ name = "Pocket_Pet"
 version = "0.1.0"
 edition = "2024"
 
+[package.metadata.turbo]
+user = "745f1dd8-5a35-4ba4-a958-0c8808c90904"
+
 [dependencies]
 mrdirector = "0.2.0"
-turbo = { version = "4.0.0-alpha.8", package = "turbo-genesis-sdk" }
+turbo = { version = "4.0.0", package = "turbo-genesis-sdk" }
 
 [lib]
 crate-type = ["cdylib"]
