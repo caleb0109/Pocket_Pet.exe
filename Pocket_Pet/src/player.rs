@@ -23,7 +23,7 @@ impl Player {
     pub fn new()-> Self {
         Self{
             due_date: 2,
-            day: 0,
+            day: 1,
             account: 4,
             salary: 3,
             activity: 3,

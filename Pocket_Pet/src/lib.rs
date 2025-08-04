@@ -3,13 +3,17 @@
 mod button;
 mod player;
 mod social_media;
+mod textbox;
 
-use std::{collections::HashMap, thread::AccessError};
+use std::{collections::HashMap, option, thread::AccessError};
 use player::Player;
 use button::button::ActionButton;
 use social_media::SocialMedia;
+use textbox::TextBox;
 use turbo::*;
 use mrdirector;
+
+
 
 
 #[turbo::game]
@@ -18,6 +22,7 @@ struct GameState{
     uibuttons: [ActionButton; 12],
     player: Player,
     sns: SocialMedia,
+    textbox: TextBox,
     unread: bool,
     select: (i32,i32),
     frame: u32,
@@ -48,6 +53,7 @@ impl GameState {
             ],
             player: Player::new(),
             sns: SocialMedia::new(),
+            textbox: TextBox::new(),
             unread: true,
             select: (265,117),
             frame : 0,
@@ -214,6 +220,7 @@ impl GameState {
     //goes through for loop to see which button was pressed
     // Draw
     let can_click = anim.sprite_name() == "screen_anims#empty";
+    
     for n in 0..self.uibuttons.len() {
         self.select = self.uibuttons[n].check(self.select);
         if self.uibuttons[n].action && !can_click {
@@ -224,8 +231,11 @@ impl GameState {
                 self.uibuttons[n].action = false;
             }
         }
-        if self.uibuttons[n].action && can_click{
-            //log!("{:?}", n);
+        // if self.textbox.speaking == false && time::tick() % 180 == 0 && self.cant_click_textbox == false {
+        //     self.cant_click_textbox = true;
+        //     self.uibuttons[n].action = false;
+        // }
+        if self.uibuttons[n].action && can_click {
             match n {
                 0 => {
                     self.player.feed(self.uibuttons[0].luxury);
@@ -334,6 +344,12 @@ impl GameState {
         }
     }
     self.uibuttons[10].tempDraw();
+
+    //textbox
+    let t = time::tick();
+    self.textbox.changeDay(self.player.day);
+    self.textbox.drawText(t);
+
     //Social Media UI
     sprite!("sns_bg", x = 32, y = 0);
     self.unread = self.sns.check_post(self.unread, self.player.hunger, self.player.cleanliness);

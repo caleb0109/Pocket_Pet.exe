@@ -4,7 +4,6 @@ use crate::button::button::ActionButton;
 #[turbo::serialize]
 pub struct SocialMedia{
     pub posted: bool,
-    pub ypos: Vec<u32>,
     pub posts: Vec<String>,
     pub pages: Vec<bool>,
     pub comments: Vec<ActionButton>,
@@ -16,7 +15,6 @@ impl SocialMedia {
     pub fn new() -> Self {
         Self {
             posted: false,
-            ypos: vec![8],
             posts: vec!["sns_posts#intro".to_string()],
             pages: vec![true],
             comments: vec![ActionButton::new("comment", (40,31,13,13), false), //please dont ask why its 31 LOL
