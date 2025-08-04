@@ -237,8 +237,13 @@ impl GameState {
         }
         if self.textbox.speaking == true {
             self.uibuttons[n].action = false;
-        }
+        } 
         if self.uibuttons[n].action && can_click {
+        // if self.textbox.speaking == false && time::tick() % 180 == 0 && self.cant_click_textbox == false {
+        //     self.cant_click_textbox = true;
+        //     self.uibuttons[n].action = false;
+        // }
+        if self.uibuttons[n].action && can_click{
             match n {
                 0 => {
                     self.player.feed(self.uibuttons[0].luxury);
@@ -356,7 +361,13 @@ impl GameState {
         text!("YES", x = 240, y = 10);
         self.textbox.changeDay(self.player.day);
     }
+ 
+    if can_click == true {
+        self.textbox.changeDay(self.player.day);
+    }
+
     self.textbox.drawText(t);
+
     //Social Media UI
     sprite!("sns_bg", x = 32, y = 0);
     self.unread = self.sns.check_post(self.unread, self.player.hunger, self.player.cleanliness);
@@ -425,6 +436,7 @@ impl GameState {
     }
     // Save GameState
     }
+}
 }
 
 #[turbo::os::document(program = "comment")]

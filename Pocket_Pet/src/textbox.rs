@@ -44,6 +44,7 @@ impl TextBox {
     }
 
     pub fn drawText(&mut self, time: usize) {        
+        let anim = animation::get("speechbubble");
         if self.speaking == true {
             sprite!("speechbubble", x = 256, y= 114);
             text_box!{
@@ -57,7 +58,10 @@ impl TextBox {
                 end = time/5,         
             }
             self.assessLine();
+
         }
+
+        
         
     }
 
