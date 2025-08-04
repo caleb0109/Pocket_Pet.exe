@@ -54,7 +54,7 @@ impl TextBox {
                 height = 35,
                 x =  21,
                 y = 118,  
-                end = time/5         
+                end = time/5,         
             }
             self.assessLine();
         }

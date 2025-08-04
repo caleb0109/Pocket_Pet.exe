@@ -10,6 +10,7 @@ use player::Player;
 use button::button::ActionButton;
 use social_media::SocialMedia;
 use textbox::TextBox;
+use turbo::time::tick;
 use turbo::*;
 use turbo::os::server::*;
 use mrdirector;
@@ -31,6 +32,7 @@ struct GameState{
     cameraPos: (i32,i32),
     comment: String,
     allComments: Vec<String>,
+    timeStamp: usize,
 } 
 
 
@@ -65,6 +67,7 @@ impl GameState {
             cameraPos: (360, 80),
             comment: "".to_string(),
             allComments: vec![],
+            timeStamp: time::tick(),
         }
     }
     pub fn update(&mut self) {
@@ -232,10 +235,9 @@ impl GameState {
                 self.uibuttons[n].action = false;
             }
         }
-        // if self.textbox.speaking == false && time::tick() % 180 == 0 && self.cant_click_textbox == false {
-        //     self.cant_click_textbox = true;
-        //     self.uibuttons[n].action = false;
-        // }
+        if self.textbox.speaking == true {
+            self.uibuttons[n].action = false;
+        }
         if self.uibuttons[n].action && can_click {
             match n {
                 0 => {
@@ -257,6 +259,7 @@ impl GameState {
                 }
                 4 => {
                     self.player.go_sleep();
+                    self.timeStamp = time::tick() + 120;
                     self.uibuttons[4].action = false;
                 }
                 5 => {
@@ -348,9 +351,12 @@ impl GameState {
 
     //textbox
     let t = time::tick();
-    self.textbox.changeDay(self.player.day);
+    text!("{:?}", self.timeStamp; x = 240, y = 0);
+    if can_click && t == self.timeStamp{
+        text!("YES", x = 240, y = 10);
+        self.textbox.changeDay(self.player.day);
+    }
     self.textbox.drawText(t);
-
     //Social Media UI
     sprite!("sns_bg", x = 32, y = 0);
     self.unread = self.sns.check_post(self.unread, self.player.hunger, self.player.cleanliness);
