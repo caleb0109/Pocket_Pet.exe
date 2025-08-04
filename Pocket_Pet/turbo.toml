@@ -6,3 +6,6 @@ authors = ["Caleb Jeon and Anna Shimizu"]
 [canvas]
 width = 240
 height = 160
+
+[turbo-os]
+api-url = "https://os.turbo.computer"

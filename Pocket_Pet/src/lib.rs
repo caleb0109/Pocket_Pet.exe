@@ -11,6 +11,7 @@ use button::button::ActionButton;
 use social_media::SocialMedia;
 use textbox::TextBox;
 use turbo::*;
+use turbo::os::server::*;
 use mrdirector;
 
 
@@ -367,6 +368,7 @@ impl GameState {
         }
     }
 
+    let commented = Comment::watch("comment").parse().unwrap_or(Comment { Comments: vec![] });
     if self.sns.cActive {
         let keyboard = keyboard::get();
             
@@ -379,6 +381,8 @@ impl GameState {
                     self.comment.clear();
                     self.uibuttons[10].action = false;
                     self.sns.cActive = false;
+                    let cmd = PostComment { ChangeComm: self.allComments.clone()};
+                    cmd.exec();
                 }
 
                 // Append all other chars to the buffer
@@ -390,6 +394,8 @@ impl GameState {
             self.comment.clear();
             self.sns.cActive = false;
             self.uibuttons[10].action =false;
+            let cmd = Reset;
+            cmd.exec();
         }
         // Remove the last character when backspace is pressed
         if keyboard.backspace().just_pressed() {
@@ -405,14 +411,39 @@ impl GameState {
     //text!("Pipi count: {:?}", self.uibuttons[5].count; x = 415, y = 10, color = 0x22406eff);
     let mut movingY = 20;
     for n in 0..self.allComments.len() {
-        text!("{:?}", self.allComments[n]; x = -230, y = movingY);
+        text!("{:?}", commented; x = -230, y = movingY);
         movingY += 10;
     }
-    // if self.player.day > self.player.due_date {
-    //     GameState::new();
-    // }
+    if self.player.day > self.player.due_date || self.player.affection >= self.player.affectionmax{
+        *self = Self::new();
+    }
     // Save GameState
     }
 }
 
+#[turbo::os::document(program = "comment")]
+pub struct Comment {
+    Comments: Vec<String>,
+}
+#[turbo::os::command(program = "comment", name = "add")]
+pub struct PostComment {
+    ChangeComm: Vec<String>,
+}
+impl CommandHandler for PostComment {
+    fn run(&mut self, user_id: &str) -> Result<(), std::io::Error> {
+        let mut currComment = fs::read("comment").unwrap_or(Comment {Comments: vec![]});
+        currComment.Comments = self.ChangeComm.clone();
+        log!("{:?}", currComment);
+        fs::write("comment", &currComment.Comments)?;
+        Ok(())
+    }
+}
 
+#[turbo::os::command(program = "comment", name = "reset")]
+pub struct Reset;
+impl CommandHandler for Reset {
+    fn run(&mut self, user_id: &str) -> Result<(), std::io::Error> {
+        fs::write("comment", &Comment {Comments: vec![]})?;
+        Ok(())
+    }
+}
