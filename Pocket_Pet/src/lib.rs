@@ -221,6 +221,7 @@ impl GameState {
     //goes through for loop to see which button was pressed
     // Draw
     let can_click = anim.sprite_name() == "screen_anims#empty";
+    //log!("{:?}", can_click_textbox);
     
     for n in 0..self.uibuttons.len() {
         self.select = self.uibuttons[n].check(self.select);
@@ -236,7 +237,7 @@ impl GameState {
         //     self.cant_click_textbox = true;
         //     self.uibuttons[n].action = false;
         // }
-        if self.uibuttons[n].action && can_click {
+        if self.uibuttons[n].action && can_click{
             match n {
                 0 => {
                     self.player.feed(self.uibuttons[0].luxury);
@@ -348,7 +349,10 @@ impl GameState {
 
     //textbox
     let t = time::tick();
-    self.textbox.changeDay(self.player.day);
+    if can_click == true {
+        self.textbox.changeDay(self.player.day);
+    }
+    
     self.textbox.drawText(t);
 
     //Social Media UI
