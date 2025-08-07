@@ -223,8 +223,8 @@ impl GameState {
     //sets the select to the location that is being highlighted either by mouse or keyboard
     //goes through for loop to see which button was pressed
     // Draw
-    let can_click = anim.sprite_name() == "screen_anims#empty";
-    
+    let commented = Comment::watch("comment").parse().unwrap_or(Comment { Comments: vec![] });
+    let can_click = anim.sprite_name() == "screen_anims#empty";    
     for n in 0..self.uibuttons.len() {
         self.select = self.uibuttons[n].check(self.select);
         if self.uibuttons[n].action && !can_click {
@@ -238,11 +238,11 @@ impl GameState {
         if self.textbox.speaking == true {
             self.uibuttons[n].action = false;
         } 
-        if self.uibuttons[n].action && can_click {
-        // if self.textbox.speaking == false && time::tick() % 180 == 0 && self.cant_click_textbox == false {
-        //     self.cant_click_textbox = true;
-        //     self.uibuttons[n].action = false;
-        // }
+        // if self.uibuttons[n].action && can_click {
+        // // if self.textbox.speaking == false && time::tick() % 180 == 0 && self.cant_click_textbox == false {
+        // //     self.cant_click_textbox = true;
+        // //     self.uibuttons[n].action = false;
+        // // }
         if self.uibuttons[n].action && can_click{
             match n {
                 0 => {
@@ -353,16 +353,11 @@ impl GameState {
         }
     }
     self.uibuttons[10].tempDraw();
-
     //textbox
     let t = time::tick();
     text!("{:?}", self.timeStamp; x = 240, y = 0);
     if can_click && t == self.timeStamp{
         text!("YES", x = 240, y = 10);
-        self.textbox.changeDay(self.player.day);
-    }
- 
-    if can_click == true {
         self.textbox.changeDay(self.player.day);
     }
 
@@ -386,6 +381,7 @@ impl GameState {
     }
 
     let commented = Comment::watch("comment").parse().unwrap_or(Comment { Comments: vec![] });
+    self.allComments = commented.Comments.clone();
     if self.sns.cActive {
         let keyboard = keyboard::get();
             
@@ -395,11 +391,12 @@ impl GameState {
                 // Clear the buffer when Enter is pressed
                 '\n' => {
                     self.allComments.push(self.comment.to_string());
-                    self.comment.clear();
                     self.uibuttons[10].action = false;
                     self.sns.cActive = false;
-                    let cmd = PostComment { ChangeComm: self.allComments.clone()};
+                    let mut cmd = PostComment { ChangeComm: self.allComments.clone()};
+                    cmd.addComment();
                     cmd.exec();
+                    self.comment.clear();
                 }
 
                 // Append all other chars to the buffer
@@ -427,8 +424,8 @@ impl GameState {
     //text!("hunger: {:?}", self.player.hunger; x = 430, y = 0, color = 0x22406eff, font = "FIVEPIXELS");
     //text!("Pipi count: {:?}", self.uibuttons[5].count; x = 415, y = 10, color = 0x22406eff);
     let mut movingY = 20;
-    for n in 0..self.allComments.len() {
-        text!("{:?}", commented; x = -230, y = movingY);
+    for n in 0..commented.Comments.len() {
+        text!("{:?}", commented.Comments[n]; x = -230, y = movingY);
         movingY += 10;
     }
     if self.player.day > self.player.due_date || self.player.affection >= self.player.affectionmax{
@@ -437,7 +434,7 @@ impl GameState {
     // Save GameState
     }
 }
-}
+
 
 #[turbo::os::document(program = "comment")]
 pub struct Comment {
@@ -450,10 +447,15 @@ pub struct PostComment {
 impl CommandHandler for PostComment {
     fn run(&mut self, user_id: &str) -> Result<(), std::io::Error> {
         let mut currComment = fs::read("comment").unwrap_or(Comment {Comments: vec![]});
-        currComment.Comments = self.ChangeComm.clone();
         log!("{:?}", currComment);
         fs::write("comment", &currComment.Comments)?;
         Ok(())
+    }
+}
+impl PostComment {
+    pub fn addComment (&mut self) {
+        let mut currComment = fs::read("comment").unwrap_or(Comment {Comments: vec![]});
+        currComment.Comments.push(self.ChangeComm[self.ChangeComm.len()-1].clone());
     }
 }
 
@@ -461,7 +463,9 @@ impl CommandHandler for PostComment {
 pub struct Reset;
 impl CommandHandler for Reset {
     fn run(&mut self, user_id: &str) -> Result<(), std::io::Error> {
-        fs::write("comment", &Comment {Comments: vec![]})?;
+        let mut currComment = fs::read("comment").unwrap_or(Comment {Comments: vec![]});
+        currComment.Comments = vec![];
+        fs::write("comment", &currComment.Comments)?;
         Ok(())
     }
 }
