@@ -424,8 +424,8 @@ impl GameState {
     //text!("hunger: {:?}", self.player.hunger; x = 430, y = 0, color = 0x22406eff, font = "FIVEPIXELS");
     //text!("Pipi count: {:?}", self.uibuttons[5].count; x = 415, y = 10, color = 0x22406eff);
     let mut movingY = 20;
-    for n in 0..commented.Comments.len() {
-        text!("{:?}", commented.Comments[n]; x = -230, y = movingY);
+    for n in 0..self.allComments.len() {
+        text!("{:?}", self.allComments[n]; x = -230, y = movingY);
         movingY += 10;
     }
     if self.player.day > self.player.due_date || self.player.affection >= self.player.affectionmax{
