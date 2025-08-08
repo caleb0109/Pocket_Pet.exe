@@ -69,7 +69,7 @@ impl ActionButton {
             anim.set_repeat(1);
             self.count = 0;
         }
-
+        
         if hunger <= 1 && cleanliness <= 1{
             anim.use_sprite("PIPI#HAPPY_hungrydirty");
         } else if hunger <= 1 {
@@ -77,7 +77,8 @@ impl ActionButton {
         } else if cleanliness <= 1 {
             anim.use_sprite("PIPI#HAPPY_dirty");
         } else {
-            //anim.use_sprite("PIPI#HAPPY_good");
+            self.pipiselect();
+
         }
         
 

@@ -8,6 +8,7 @@ pub struct TextBox {
     pub current_line: usize,
     pub spoken: [bool; 5],
     pub speaking: bool,
+    pub animdone: bool,
 }
 impl TextBox {
     pub fn new() -> Self {
@@ -15,7 +16,8 @@ impl TextBox {
             lines: SCRIPT_PATH.split("\r\n").map(|line| line.to_string()).collect(),
             current_line: 0,
             spoken: [false, false, false, false, false],
-            speaking: true
+            speaking: false,
+            animdone: false
         }
     }
 
@@ -44,25 +46,31 @@ impl TextBox {
     }
 
     pub fn drawText(&mut self, time: usize) {        
-        let anim = animation::get("speechbubble");
+        let text;
+
+        if self.animdone == false {
+            text = "";
+        } else {
+            text = &self.lines[self.current_line];
+        }
+            
         if self.speaking == true {
             sprite!("speechbubble", x = 256, y= 114);
             text_box!{
-                &self.lines[self.current_line],
+                text,
                 font = "FIVEPIXELS",
+                color = 0xfae3deff,
                 fixed = true,
                 width = 200,
                 height = 35,
                 x =  21,
                 y = 118,  
-                end = time/5,         
+                //end = time/5         
             }
             self.assessLine();
-
+            self.pipiAnim();
+            
         }
-
-        
-        
     }
 
     pub fn assessLine(&mut self) {
@@ -71,8 +79,23 @@ impl TextBox {
             self.speaking = false;
         } else if m.just_released() {
             self.current_line += 1;
+            self.animdone = true; 
+        } else if self.pipiAnim() && self.animdone == false {
+            self.current_line += 1;
+            self.animdone = true;
         }
+    }
 
+    pub fn pipiAnim(&mut self) -> bool{
+        let summon = animation::get("summon");
+        summon.use_sprite("PIPI_summon");
+        if self.lines[self.current_line] == "--pipisummon" {
+            
+            sprite!(animation_key = "summon", x = 320, y = 30);
+            summon.set_repeat(1);
+            summon.set_fill_forwards(true);
+        }
+        return summon.done();
     }
 }
 

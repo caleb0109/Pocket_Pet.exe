@@ -175,7 +175,10 @@ impl GameState {
         }
         
 //Summon Pipi
-    self.uibuttons[5].summon(self.player.hunger, self.player.cleanliness);
+    if self.textbox.animdone == true {
+        self.uibuttons[5].summon(self.player.hunger, self.player.cleanliness);
+    }
+    
     //log!("{:?}", self.player.hunger);
 
 //Screen animations
