@@ -63,29 +63,30 @@ impl ActionButton {
             anim.set_repeat(1);               
             self.count += 1;   
         }
-        
+            
         if self.count > 5 {
             anim.use_sprite("PIPI#FLIP_good");
             anim.set_repeat(1);
             self.count = 0;
         }
+       
         
         if hunger <= 1 && cleanliness <= 1{
-            anim.use_sprite("PIPI#HAPPY_hungrydirty");
+            sprite!("PIPI#HAPPY_hungrydirty", x = self.hitbox.0, y = self.hitbox.1
+        );
         } else if hunger <= 1 {
-            anim.use_sprite("PIPI#HAPPY_hungry");
+            sprite!("PIPI#HAPPY_hungry", x = self.hitbox.0, y = self.hitbox.1
+        );
         } else if cleanliness <= 1 {
-            anim.use_sprite("PIPI#HAPPY_dirty");
+            sprite!("PIPI#HAPPY_dirty", x = self.hitbox.0, y = self.hitbox.1
+        );
         } else {
-            self.pipiselect();
+            sprite!(
+                animation_key = "PIPI",
+                default_sprite = "PIPI#HAPPY_good", x = self.hitbox.0, y = self.hitbox.1
+            );
 
         }
-        
-
-        sprite!(
-            animation_key = "PIPI",
-            default_sprite = "PIPI#HAPPY_good", x = self.hitbox.0, y = self.hitbox.1
-        );
         
     }
 
