@@ -32,6 +32,7 @@ struct GameState{
     cameraPos: (i32,i32),
     comment: String,
     allComments: Vec<String>,
+    postID: i32,
     timeStamp: usize,
 } 
 
@@ -67,6 +68,7 @@ impl GameState {
             cameraPos: (360, 80),
             comment: "".to_string(),
             allComments: vec![],
+            postID: 0,
             timeStamp: time::tick(),
         }
     }
@@ -226,7 +228,7 @@ impl GameState {
     //sets the select to the location that is being highlighted either by mouse or keyboard
     //goes through for loop to see which button was pressed
     // Draw
-    let commented = Comment::watch("comment").parse().unwrap_or(Comment { Comments: vec![] });
+    
     let can_click = anim.sprite_name() == "screen_anims#empty";    
     for n in 0..self.uibuttons.len() {
         self.select = self.uibuttons[n].check(self.select);
@@ -267,7 +269,7 @@ impl GameState {
                 }
                 4 => {
                     self.player.go_sleep();
-                    self.timeStamp = time::tick() + 120;
+                    self.timeStamp = time::tick() + 102;
                     self.uibuttons[4].action = false;
                 }
                 5 => {
@@ -358,9 +360,9 @@ impl GameState {
     self.uibuttons[10].tempDraw();
     //textbox
     let t = time::tick();
-    text!("{:?}", self.timeStamp; x = 240, y = 0);
+    //text!("{:?}", self.timeStamp; x = 240, y = 0);
     if can_click && t == self.timeStamp{
-        text!("YES", x = 240, y = 10);
+        //text!("YES", x = 240, y = 10);
         self.textbox.changeDay(self.player.day);
     }
 
@@ -374,17 +376,29 @@ impl GameState {
     for n in 0..self.sns.comments.len() {
         self.select = self.sns.comments[n].check(self.select);
         if self.sns.comments[n].action {
+            self.cameraPos.0 = -120;
             match n {
                 _ => {
-                    self.cameraPos.0 = -120;
+                    let id: String = n.to_string();
+                    self.postID = id.parse().unwrap();
                     self.sns.comments[n].action = false;
                 }
             }
         }
     }
 
-    let commented = Comment::watch("comment").parse().unwrap_or(Comment { Comments: vec![] });
-    self.allComments = commented.Comments.clone();
+    match self.postID {
+        0 => {
+            let commented = Comment::watch("comment").parse().unwrap_or(Comment { Comments: vec![] });
+            self.allComments = commented.Comments.clone();
+        }
+        1 => {
+            let commented = Comment::watch("comment2").parse().unwrap_or(Comment { Comments: vec![] });
+            self.allComments = commented.Comments.clone();
+        }
+        _ => {}
+    }
+    //text!("{:?}", self.postID; x = -220, y = 0);
     if self.sns.cActive {
         let keyboard = keyboard::get();
             
@@ -396,9 +410,22 @@ impl GameState {
                     self.allComments.push(self.comment.to_string());
                     self.uibuttons[10].action = false;
                     self.sns.cActive = false;
-                    let mut cmd = PostComment { ChangeComm: self.allComments.clone()};
-                    cmd.addComment();
+                    let mut cmd = PostComment { ChangeComm: self.allComments.clone(), PostID: self.postID};
                     cmd.exec();
+                    // match self.postID {
+                    //     0 => {
+                            
+                    //     }
+                    //     1 => {
+                    //         let mut cmd = PostComment2 { ChangeComm: self.allComments.clone()};
+                    //         cmd.addComment();
+                    //         cmd.exec();
+                    //     }
+                    //     2 => {
+
+                    //     }
+                    //     _ => {}
+                    // }
                     self.comment.clear();
                 }
 
@@ -409,6 +436,7 @@ impl GameState {
  
         if keyboard.escape().just_pressed() {
             self.comment.clear();
+            self.allComments = vec![];
             self.sns.cActive = false;
             self.uibuttons[10].action =false;
             let cmd = Reset;
@@ -420,8 +448,6 @@ impl GameState {
         }
         text!("{:?}", self.comment; x = self.uibuttons[10].hitbox.0, y = self.uibuttons[10].hitbox.1, color = 0x22406eff, font = "FIVEPIXELS");
     }
-
-    
     //Stats
     //text!("Affection: {:?}", self.player.affection; x = 285, y = 0, color = 0x22406eff);
     //text!("hunger: {:?}", self.player.hunger; x = 430, y = 0, color = 0x22406eff, font = "FIVEPIXELS");
@@ -434,6 +460,7 @@ impl GameState {
     if self.player.day > self.player.due_date || self.player.affection >= self.player.affectionmax{
         *self = Self::new();
     }
+    
     // Save GameState
     }
 }
@@ -443,32 +470,74 @@ impl GameState {
 pub struct Comment {
     Comments: Vec<String>,
 }
-#[turbo::os::command(program = "comment", name = "add")]
+#[turbo::os::command(program = "comment", name = "addComm")]
 pub struct PostComment {
     ChangeComm: Vec<String>,
+    PostID: i32,
 }
 impl CommandHandler for PostComment {
     fn run(&mut self, user_id: &str) -> Result<(), std::io::Error> {
         let mut currComment = fs::read("comment").unwrap_or(Comment {Comments: vec![]});
+        let mut currComment2 = fs::read("comment2").unwrap_or(Comment{Comments: vec![]});
+        match self.PostID {
+            0 => {
+                if(currComment.Comments.len() >= 5) {
+                    currComment.Comments.remove(0);
+                }
+                currComment.Comments.push(self.ChangeComm[self.ChangeComm.len()-1].clone());
+            }
+            1 => {
+                if(currComment2.Comments.len() >= 5) {
+                    currComment2.Comments.remove(0);
+                }
+                currComment2.Comments.push(self.ChangeComm[self.ChangeComm.len()-1].clone());
+            }
+            _ => {}
+        }
+    
         log!("{:?}", currComment);
+        log!("{:?}", currComment2);
         fs::write("comment", &currComment.Comments)?;
+        fs::write("comment2", &currComment2.Comments)?;
         Ok(())
     }
 }
-impl PostComment {
-    pub fn addComment (&mut self) {
-        let mut currComment = fs::read("comment").unwrap_or(Comment {Comments: vec![]});
-        currComment.Comments.push(self.ChangeComm[self.ChangeComm.len()-1].clone());
-    }
-}
+
 
 #[turbo::os::command(program = "comment", name = "reset")]
 pub struct Reset;
 impl CommandHandler for Reset {
     fn run(&mut self, user_id: &str) -> Result<(), std::io::Error> {
         let mut currComment = fs::read("comment").unwrap_or(Comment {Comments: vec![]});
+        let mut currComment2 = fs::read("comment2").unwrap_or(Comment{Comments: vec![]});
         currComment.Comments = vec![];
+        currComment2.Comments = vec!{};
         fs::write("comment", &currComment.Comments)?;
+        fs::write("comment2", &currComment2.Comments)?;
         Ok(())
     }
 }
+
+
+// #[turbo::os::document(program = "comment2")]
+// pub struct Comment2 {
+//     Comments: Vec<String>,
+// }
+// #[turbo::os::command(program = "comment2", name = "add2")]
+// pub struct PostComment2 {
+//     ChangeComm: Vec<String>,
+// }
+// impl CommandHandler for PostComment2 {
+//     fn run(&mut self, user_id: &str) -> Result<(), std::io::Error> {
+//         let mut currComment = fs::read("comment2").unwrap_or(Comment2 {Comments: vec![]});
+//         log!("{:?}", currComment);
+//         fs::write("comment2", &currComment.Comments)?;
+//         Ok(())
+//     }
+// }
+// impl PostComment2 {
+//     pub fn addComment (&mut self) {
+//         let mut currComment = fs::read("comment2").unwrap_or(Comment2 {Comments: vec![]});
+//         currComment.Comments.push(self.ChangeComm[self.ChangeComm.len()-1].clone());
+//     }
+// }
