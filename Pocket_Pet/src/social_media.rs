@@ -17,9 +17,9 @@ impl SocialMedia {
             posted: false,
             posts: vec!["sns_posts#intro".to_string()],
             pages: vec![true],
-            comments: vec![ActionButton::new("comment", (40,31,13,13), false), //please dont ask why its 31 LOL
-                           ActionButton::new("comment", (40,100,13,13), false),
-                           ActionButton::new("comment", (40,220,13,13), false)],
+            comments: vec![ActionButton::new("comment", (41,31,13,13), false), //please dont ask why its 31 LOL
+                           ActionButton::new("comment", (41,104,13,13), false),
+                           ActionButton::new("comment", (41,220,13,13), false)],
             triggered: [false, false, false],
             cActive: false,
         }
@@ -27,11 +27,11 @@ impl SocialMedia {
 
     //checks if the criteria for a new post has been fulfilled
     pub fn check_post(&mut self, unread: bool, hunger: u32, cleanliness: u32) -> bool {
-        self.comments[0].tempDraw();
+        self.comments[0].draw();
 
         if hunger == 0 && !self.triggered[0] {
             self.posts.insert(0, "sns_posts#hunger".to_string());
-            self.comments[1].tempDraw();
+            self.comments[1].draw();
             self.posted = true; 
             self.triggered[0] = true;
             return self.posted;  
@@ -40,7 +40,7 @@ impl SocialMedia {
         
         if cleanliness == 0 && !self.triggered[1] {
             self.posts.insert(0, "sns_posts#clean".to_string());
-            self.comments[2].tempDraw();
+            self.comments[2].draw();
             self.posted = true;
             self.triggered[1] = true;
             return self.posted;
@@ -63,24 +63,24 @@ impl SocialMedia {
         if self.posts.len() == 1{
             sprite!(&self.posts[0], x = 58, y = 8); 
             self.draw_misc(1);
-            self.comments[0].hitbox.1 = 31;
-            self.comments[0].tempDraw();
+            //self.comments[0].hitbox.1 = 31;
+            self.comments[0].draw();
         //the last page of an odd number of posts; there is only one post on this page  
         } else if self.posts.len() % 2 == 1 && pagenum == self.pages.len() - 1 {
             sprite!(&self.posts[pagenum * 2], x = 58, y = 8);
             self.draw_misc(1);
-            self.comments[0].hitbox.1 = 31;
-            self.comments[0].tempDraw();
+            //self.comments[0].hitbox.1 = 31;
+            self.comments[0].draw();
         //pages with even number of posts, or the first and middle pages of odd number posts
         } else {
             sprite!(&self.posts[pagenum*2], x = 58, y = 8);
             sprite!(&self.posts[pagenum*2 + 1], x = 58, y = 81);
             self.draw_misc(2);
 
-            self.comments[0].hitbox.1 = 31;
-            self.comments[1].hitbox.1 = 104;
-            self.comments[0].tempDraw();
-            self.comments[1].tempDraw();
+            // self.comments[0].hitbox.1 = 31;
+            // self.comments[1].hitbox.1 = 104;
+            self.comments[0].draw();
+            self.comments[1].draw();
         }
 
     }

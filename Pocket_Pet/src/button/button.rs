@@ -36,7 +36,12 @@ impl ActionButton {
     }
 
     pub fn nonselect(&self) {
-        sprite!(&self.text, x = self.hitbox.0, y = self.hitbox.1, color = 0x323b42ff);
+        let nonselect = format!("{}_nonselect", &self.text);
+        // match self.hovered {
+        //     true => sprite!(&highlight, x = self.hitbox.0 - 1, y = self.hitbox.1 - 1),
+        //     false => sprite!(&self.text, x = self.hitbox.0, y = self.hitbox.1)
+        // };
+        sprite!(&nonselect, x = self.hitbox.0, y = self.hitbox.1);
     }
      pub fn tempDraw(&self) {
         // Color references
@@ -54,7 +59,7 @@ impl ActionButton {
     }
 
     //summons pipi (draw function only used by pipi)
-    pub fn summon(&mut self, hunger: u32, cleanliness: u32) {
+    pub fn summon(&mut self, hunger: u32, cleanliness: u32, day: i32, time: i32, timepass: usize) {
         let selected = self.pipiselect();
         let anim = animation::get("PIPI");
 
@@ -71,6 +76,7 @@ impl ActionButton {
         }
        
         
+        
         if hunger <= 1 && cleanliness <= 1{
             sprite!("PIPI#HAPPY_hungrydirty", x = self.hitbox.0, y = self.hitbox.1
         );
@@ -81,15 +87,38 @@ impl ActionButton {
             sprite!("PIPI#HAPPY_dirty", x = self.hitbox.0, y = self.hitbox.1
         );
         } else {
-            sprite!(
+            if time == 3 {
+                sprite!(
                 animation_key = "PIPI",
                 default_sprite = "PIPI#HAPPY_good", x = self.hitbox.0, y = self.hitbox.1
-            );
-
-        }
-        
+                );
+            } else {   
+                match timepass {
+                    0 => {
+                        sprite!(
+                            animation_key = "PIPI",
+                            default_sprite = "PIPI#HAPPY_good", x = self.hitbox.0, y = self.hitbox.1
+                        );
+                    }
+                    1 => {
+                        sprite!("PIPI#SELFIE_good", x = self.hitbox.0, y = self.hitbox.1)
+                    }
+                _ => {}
+                }
+            }  
+        }    
     }
 
+    pub fn randomIdle(&mut self) -> usize{
+        let n: usize;
+        if random::bool() {
+            n = 0;
+        } else {
+            n = 1;
+        }
+        return n;
+    }
+ 
     //checks if mouse clicked pipi
     pub fn pipiselect(&mut self) -> bool {
         let m = pointer::world();
