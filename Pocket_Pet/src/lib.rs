@@ -33,6 +33,7 @@ struct GameState{
     comment: String,
     allComments: Vec<String>,
     timeStamp: usize,
+    timepass: usize,
 } 
 
 
@@ -68,6 +69,7 @@ impl GameState {
             comment: "".to_string(),
             allComments: vec![],
             timeStamp: time::tick(),
+            timepass: 0,
         }
     }
     pub fn update(&mut self) {
@@ -173,13 +175,11 @@ impl GameState {
             5 => sprite!("money#5", x = 412, y = 106),
             _ => sprite!("money#5", x = 412, y = 106),
         }
-        
-//Summon Pipi
+
+//Summon Pipi    
     if self.textbox.animdone == true {
-        self.uibuttons[5].summon(self.player.hunger, self.player.cleanliness);
+        self.uibuttons[5].summon(self.player.hunger, self.player.cleanliness, self.player.day, self.player.activity, self.timepass);
     }
-    
-    //log!("{:?}", self.player.hunger);
 
 //Screen animations
     let anim = animation::get("screenanim");      
@@ -250,24 +250,28 @@ impl GameState {
             match n {
                 0 => {
                     self.player.feed(self.uibuttons[0].luxury);
-                    
+                    self.timepass = self.uibuttons[5].randomIdle();
                     self.uibuttons[0].action = false;
                 }
                 1 => {
                     self.player.shower(self.uibuttons[1].luxury);
+                    self.timepass = self.uibuttons[5].randomIdle();
                     self.uibuttons[1].action = false;
                 }
                 2 => {
                     self.player.working();
+                    self.timepass = self.uibuttons[5].randomIdle();
                     self.uibuttons[2].action = false;
                 }
                 3 => {
                     self.player.allowance();
+                    self.timepass = self.uibuttons[5].randomIdle();
                     self.uibuttons[3].action = false;
                 }
                 4 => {
                     self.player.go_sleep();
                     self.timeStamp = time::tick() + 120;
+                    self.timepass = self.uibuttons[5].randomIdle();
                     self.uibuttons[4].action = false;
                 }
                 5 => {
@@ -356,6 +360,7 @@ impl GameState {
         }
     }
     self.uibuttons[10].tempDraw();
+
     //textbox
     let t = time::tick();
     text!("{:?}", self.timeStamp; x = 240, y = 0);
