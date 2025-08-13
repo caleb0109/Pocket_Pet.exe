@@ -410,7 +410,7 @@ impl GameState {
                     self.allComments.push(self.comment.to_string());
                     self.uibuttons[10].action = false;
                     self.sns.cActive = false;
-                    let mut cmd = PostComment { ChangeComm: self.allComments.clone(), PostID: self.postID};
+                    let mut cmd = PostComment { ChangeComm: self.allComments.clone(), PostID: self.sns.posts.clone()};
                     cmd.exec();
                     // match self.postID {
                     //     0 => {
@@ -473,37 +473,48 @@ pub struct Comment {
 #[turbo::os::command(program = "comment", name = "addComm")]
 pub struct PostComment {
     ChangeComm: Vec<String>,
-    PostID: i32,
+    PostID: Vec<String>,
 }
 impl CommandHandler for PostComment {
     fn run(&mut self, user_id: &str) -> Result<(), std::io::Error> {
-        let mut currComment = fs::read("comment").unwrap_or(Comment {Comments: vec![]});
-        let mut currComment2 = fs::read("comment2").unwrap_or(Comment{Comments: vec![]});
-        match self.PostID {
-            0 => {
-                if(currComment.Comments.len() >= 5) {
-                    currComment.Comments.remove(0);
+        let mut firstComm = fs::read("firstComm").unwrap_or(Comment {Comments: vec![]});
+        let mut hungerComm = fs::read("hunger").unwrap_or(Comment{Comments: vec![]});
+        let mut cleanComm = fs::read("clean").unwrap_or(Comment{Comments: vec![]});
+        for n in 0..self.PostID.len() {
+            if self.PostID[n] == "sns_posts#intro".to_string() {
+                if(hungerComm.Comments.len() >= 5) {
+                    hungerComm.Comments.remove(0);
                 }
-                currComment.Comments.push(self.ChangeComm[self.ChangeComm.len()-1].clone());
+                hungerComm.Comments.push(self.ChangeComm[self.ChangeComm.len()-1].clone());
             }
-            1 => {
-                if(currComment2.Comments.len() >= 5) {
-                    currComment2.Comments.remove(0);
+            if self.PostID[n] == "sns_posts#hunger".to_string() {
+                if(hungerComm.Comments.len() >= 5) {
+                    hungerComm.Comments.remove(0);
                 }
-                currComment2.Comments.push(self.ChangeComm[self.ChangeComm.len()-1].clone());
+                hungerComm.Comments.push(self.ChangeComm[self.ChangeComm.len()-1].clone());
             }
-            _ => {}
+            if self.PostID[n] == "sns_posts#clean" {
+                if(cleanComm.Comments.len() >= 5) {
+                    cleanComm.Comments.remove(0);
+                }
+                cleanComm.Comments.push(self.ChangeComm[self.ChangeComm.len()-1].clone());
+            }
         }
+        
     
-        log!("{:?}", currComment);
-        log!("{:?}", currComment2);
-        fs::write("comment", &currComment.Comments)?;
-        fs::write("comment2", &currComment2.Comments)?;
+        log!("{:?}", firstComm);
+        log!("{:?}", hungerComm);
+        fs::write("comment", &firstComm.Comments)?;
+        fs::write("comment2", &hungerComm.Comments)?;
         Ok(())
     }
 }
 
-
+impl PostComment {
+    fn fileRead (&mut self, currComment: Comment) {
+        
+    }
+}
 #[turbo::os::command(program = "comment", name = "reset")]
 pub struct Reset;
 impl CommandHandler for Reset {
