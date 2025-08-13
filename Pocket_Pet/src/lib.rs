@@ -32,7 +32,8 @@ struct GameState{
     cameraPos: (i32,i32),
     comment: String,
     allComments: Vec<String>,
-    postID: i32,
+    postID: usize,
+    postPage: usize,
     timeStamp: usize,
     timepass: usize,
 } 
@@ -70,6 +71,7 @@ impl GameState {
             comment: "".to_string(),
             allComments: vec![],
             postID: 0,
+            postPage: 0,
             timeStamp: time::tick(),
             timepass: 0,
         }
@@ -392,16 +394,43 @@ impl GameState {
         }
     }
 
-    match self.postID {
-        0 => {
-            let commented = Comment::watch("comment").parse().unwrap_or(Comment { Comments: vec![] });
-            self.allComments = commented.Comments.clone();
+    for n in 0..self.sns.pages.len() {
+        if self.sns.pages[n] {
+            let id: String = n.to_string();
+            self.postPage = id.parse().unwrap();
         }
-        1 => {
-            let commented = Comment::watch("comment2").parse().unwrap_or(Comment { Comments: vec![] });
-            self.allComments = commented.Comments.clone();
+    }
+
+    let mut tracker: usize = 0;
+    if self.postID == 0 {
+        if self.postPage == 0 {
+            tracker = 0;
+        } else {
+            tracker = self.postPage * 2;
         }
-        _ => {}
+    }
+    if self.postID == 2 {
+        if self.postPage == 0 {
+            tracker = 1;
+        } else {
+            tracker = (self.postPage * 2) + 1;
+        }
+    }
+    
+    for n in 0..self.sns.posts.len() {
+        if n == tracker {
+            if self.sns.posts[tracker] == "sns_posts#intro".to_string() {
+                let commented = Comment::watch("firstComm").parse().unwrap_or(Comment { Comments: vec![] });
+                self.allComments = commented.Comments.clone();
+            } else if self.sns.posts[tracker] == "sns_posts#hunger".to_string() {
+                let commented = Comment::watch("hunger").parse().unwrap_or(Comment { Comments: vec![] });
+                self.allComments = commented.Comments.clone();
+            } else if self.sns.posts[tracker] == "sns_posts#clean" {
+                let commented = Comment::watch("clean").parse().unwrap_or(Comment { Comments: vec![] });
+                self.allComments = commented.Comments.clone();
+            }
+        }
+        
     }
     //text!("{:?}", self.postID; x = -220, y = 0);
     if self.sns.cActive {
@@ -415,22 +444,12 @@ impl GameState {
                     self.allComments.push(self.comment.to_string());
                     self.uibuttons[10].action = false;
                     self.sns.cActive = false;
-                    let mut cmd = PostComment { ChangeComm: self.allComments.clone(), PostID: self.sns.posts.clone()};
+                    let mut cmd = PostComment { 
+                        ChangeComm: self.allComments.clone(), 
+                        PostID: self.sns.posts.clone(), 
+                        PostPage: self.postPage,
+                        PostComm: self.postID};
                     cmd.exec();
-                    // match self.postID {
-                    //     0 => {
-                            
-                    //     }
-                    //     1 => {
-                    //         let mut cmd = PostComment2 { ChangeComm: self.allComments.clone()};
-                    //         cmd.addComment();
-                    //         cmd.exec();
-                    //     }
-                    //     2 => {
-
-                    //     }
-                    //     _ => {}
-                    // }
                     self.comment.clear();
                 }
 
@@ -444,7 +463,10 @@ impl GameState {
             self.allComments = vec![];
             self.sns.cActive = false;
             self.uibuttons[10].action =false;
-            let cmd = Reset;
+            let cmd = Reset {
+                PostID: self.sns.posts.clone(),
+                PostPage: self.postPage,
+                PostComm: self.postID};
             cmd.exec();
         }
         // Remove the last character when backspace is pressed
@@ -465,7 +487,8 @@ impl GameState {
     if self.player.day > self.player.due_date || self.player.affection >= self.player.affectionmax{
         *self = Self::new();
     }
-    
+    text!("{:?}", self.sns.posts; x = -240, y = 0);
+    text!("{:?}", self.postID; x = -240, y = 10)
     // Save GameState
     }
 }
@@ -479,81 +502,110 @@ pub struct Comment {
 pub struct PostComment {
     ChangeComm: Vec<String>,
     PostID: Vec<String>,
+    PostPage: usize,
+    PostComm: usize,
 }
 impl CommandHandler for PostComment {
     fn run(&mut self, user_id: &str) -> Result<(), std::io::Error> {
         let mut firstComm = fs::read("firstComm").unwrap_or(Comment {Comments: vec![]});
         let mut hungerComm = fs::read("hunger").unwrap_or(Comment{Comments: vec![]});
         let mut cleanComm = fs::read("clean").unwrap_or(Comment{Comments: vec![]});
+
+        let mut tracker: usize = 0;
+
+        if self.PostComm == 0 {
+            if self.PostPage == 0 {
+                tracker = 0;
+            } else {
+                tracker = self.PostPage * 2;
+            }
+        }
+        if self.PostComm == 2 {
+            if self.PostPage == 0 {
+                tracker = 1;
+            } else {
+                tracker = (self.PostPage * 2) + 1;
+            }
+        }
         for n in 0..self.PostID.len() {
-            if self.PostID[n] == "sns_posts#intro".to_string() {
-                if(hungerComm.Comments.len() >= 5) {
-                    hungerComm.Comments.remove(0);
+            if n == tracker {
+                if self.PostID[tracker] == "sns_posts#intro" {
+                    firstComm.Comments = self.fileRead(firstComm.Comments.clone()).clone();
                 }
-                hungerComm.Comments.push(self.ChangeComm[self.ChangeComm.len()-1].clone());
-            }
-            if self.PostID[n] == "sns_posts#hunger".to_string() {
-                if(hungerComm.Comments.len() >= 5) {
-                    hungerComm.Comments.remove(0);
+                if self.PostID[tracker] == "sns_posts#hunger" {
+                    hungerComm.Comments = self.fileRead(hungerComm.Comments.clone());
                 }
-                hungerComm.Comments.push(self.ChangeComm[self.ChangeComm.len()-1].clone());
-            }
-            if self.PostID[n] == "sns_posts#clean" {
-                if(cleanComm.Comments.len() >= 5) {
-                    cleanComm.Comments.remove(0);
+                if self.PostID[tracker] == "sns_posts#clean" {
+                    cleanComm.Comments = self.fileRead(cleanComm.Comments.clone());
                 }
-                cleanComm.Comments.push(self.ChangeComm[self.ChangeComm.len()-1].clone());
             }
         }
         
-    
+        log!("{:?}", tracker);
         log!("{:?}", firstComm);
         log!("{:?}", hungerComm);
-        fs::write("comment", &firstComm.Comments)?;
-        fs::write("comment2", &hungerComm.Comments)?;
+        log!("{:?}", cleanComm);
+        fs::write("firstComm", &firstComm.Comments)?;
+        fs::write("hunger", &hungerComm.Comments)?;
+        fs::write("clean", &cleanComm.Comments)?;
         Ok(())
     }
 }
 
 impl PostComment {
-    fn fileRead (&mut self, currComment: Comment) {
-        
+    fn fileRead (&mut self, mut currComment: Vec<String>) -> Vec<String>{
+        if currComment.len() >= 5 {
+            currComment.remove(0);
+        }
+        currComment.push(self.ChangeComm[self.ChangeComm.len()-1].clone());
+        return currComment;
     }
 }
 #[turbo::os::command(program = "comment", name = "reset")]
-pub struct Reset;
+pub struct Reset {
+    PostID: Vec<String>,
+    PostPage: usize,
+    PostComm: usize,
+}
 impl CommandHandler for Reset {
     fn run(&mut self, user_id: &str) -> Result<(), std::io::Error> {
-        let mut currComment = fs::read("comment").unwrap_or(Comment {Comments: vec![]});
-        let mut currComment2 = fs::read("comment2").unwrap_or(Comment{Comments: vec![]});
-        currComment.Comments = vec![];
-        currComment2.Comments = vec!{};
-        fs::write("comment", &currComment.Comments)?;
-        fs::write("comment2", &currComment2.Comments)?;
+        let mut firstComm = fs::read("firstComm").unwrap_or(Comment {Comments: vec![]});
+        let mut hungerComm = fs::read("hunger").unwrap_or(Comment{Comments: vec![]});
+        let mut cleanComm = fs::read("clean").unwrap_or(Comment{Comments: vec![]});
+        
+        let mut tracker: usize = 0;
+        if self.PostComm == 0 {
+            if self.PostPage == 0 {
+                tracker = 0;
+            } else {
+                tracker = self.PostPage * 2;
+            }
+        }
+        if self.PostComm == 2 {
+            if self.PostPage == 0 {
+                tracker = 1;
+            } else {
+                tracker = (self.PostPage * 2) + 1;
+            }
+        }
+
+        for n in 0..self.PostID.len() {
+            if n == tracker {
+                if self.PostID[tracker] == "sns_posts#intro" {
+                    firstComm.Comments = vec![];
+                }
+                if self.PostID[tracker] == "sns_posts#hunger" {
+                    hungerComm.Comments = vec![];
+                }
+                if self.PostID[tracker] == "sns_posts#clean" {
+                    cleanComm.Comments = vec![];
+                }
+            }
+        }
+
+        fs::write("firstComm", &firstComm.Comments)?;
+        fs::write("hunger", &hungerComm.Comments)?;
+        fs::write("clean", &cleanComm.Comments)?;
         Ok(())
     }
 }
-
-
-// #[turbo::os::document(program = "comment2")]
-// pub struct Comment2 {
-//     Comments: Vec<String>,
-// }
-// #[turbo::os::command(program = "comment2", name = "add2")]
-// pub struct PostComment2 {
-//     ChangeComm: Vec<String>,
-// }
-// impl CommandHandler for PostComment2 {
-//     fn run(&mut self, user_id: &str) -> Result<(), std::io::Error> {
-//         let mut currComment = fs::read("comment2").unwrap_or(Comment2 {Comments: vec![]});
-//         log!("{:?}", currComment);
-//         fs::write("comment2", &currComment.Comments)?;
-//         Ok(())
-//     }
-// }
-// impl PostComment2 {
-//     pub fn addComment (&mut self) {
-//         let mut currComment = fs::read("comment2").unwrap_or(Comment2 {Comments: vec![]});
-//         currComment.Comments.push(self.ChangeComm[self.ChangeComm.len()-1].clone());
-//     }
-// }
