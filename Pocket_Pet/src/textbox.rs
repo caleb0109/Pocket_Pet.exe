@@ -104,5 +104,13 @@ impl TextBox {
         return summon.done();
         
     }
+
+    pub fn affectionMaxEnd(&mut self) {
+        let n = self.lines.iter().position(|line| line == "--affectionmax");
+        self.current_line = n.unwrap_or(0) + 1;
+        self.speaking = true;
+        audio::play("pipiDefault");
+        audio::set_volume("pipiDefault", 0.2);
+    }
 }
 

@@ -254,11 +254,11 @@ impl GameState {
                 self.player.day += 1;
             }
         }
-        // if self.uibuttons[n].action && can_click {
-        // // if self.textbox.speaking == false && time::tick() % 180 == 0 && self.cant_click_textbox == false {
-        // //     self.cant_click_textbox = true;
-        // //     self.uibuttons[n].action = false;
-        // // }
+        if self.player.affection == self.player.affectionmax && t >= self.timeStamp + 5 {
+            if self.textbox.speaking == false {
+                //self.player.affection += 1;
+            }
+        }
         if self.uibuttons[n].action && can_click{
             match n {
                 0 => {
@@ -279,6 +279,10 @@ impl GameState {
                 3 => {
                     self.player.allowance();
                     self.timepass = self.uibuttons[5].randomIdle();
+                    if self.player.affection == self.player.affectionmax {
+                        text!("HIDHOASDOSADKASDdml", x = 240, y = 10);
+                        self.textbox.affectionMaxEnd();
+                    }
                     self.uibuttons[3].action = false;
                 }
                 4 => {
@@ -384,10 +388,9 @@ impl GameState {
     
     //text!("{:?}", self.timeStamp; x = 240, y = 0);
     if can_click && t == self.timeStamp{
-        //text!("YES", x = 240, y = 10);
+        text!("YES", x = 240, y = 10);
         self.textbox.changeDay(self.player.day);
     }
-
 
     self.textbox.drawText(t);
 
@@ -498,7 +501,7 @@ impl GameState {
         text!("{:?}", self.allComments[n]; x = -230, y = movingY);
         movingY += 10;
     }
-    if self.player.day >= self.player.due_date || self.player.affection >= self.player.affectionmax{
+    if self.player.day >= self.player.due_date || self.player.affection > self.player.affectionmax{
         *self = Self::new();
     }
     }

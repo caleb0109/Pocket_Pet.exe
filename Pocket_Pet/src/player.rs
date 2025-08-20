@@ -111,7 +111,7 @@ impl Player {
                 self.hunger = self.decrease(self.hunger);
                 self.cleanliness = self.decrease(self.cleanliness);
                 if self.affection < self.affectionmax {
-                   self.affection += 1; 
+                   self.affection += 5; 
                 }               
                 self.activity -= 1;
 
