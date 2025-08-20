@@ -31,7 +31,6 @@ impl SocialMedia {
 
         if hunger == 0 && !self.triggered[0] {
             self.posts.insert(0, "sns_posts#hunger".to_string());
-            self.comments[1].draw();
             self.posted = true; 
             self.triggered[0] = true;
             return self.posted;  
@@ -40,40 +39,35 @@ impl SocialMedia {
         
         if cleanliness == 0 && !self.triggered[1] {
             self.posts.insert(0, "sns_posts#dirty".to_string());
-            self.comments[2].draw();
             self.posted = true;
             self.triggered[1] = true;
             return self.posted;
             
         }
 
-        if self.triggered[0] && hunger > 1 {
+        if self.triggered[0] && hunger > 1 && !self.triggered[2]{
             self.posts.insert(0, "sns_posts#hunger_resolved".to_string());
-            self.comments[3].draw();
             self.posted = true; 
             self.triggered[2] = true;
             return self.posted;
         }
 
-        if self.triggered[1] && cleanliness > 1 {
+        if self.triggered[1] && cleanliness > 1 && !self.triggered[3]{
             self.posts.insert(0, "sns_posts#dirty_resolved".to_string());
-            self.comments[4].draw();
             self.posted = true; 
             self.triggered[3] = true;
             return self.posted;
         }
 
-        if money == 7 {
+        if money == 7 && !self.triggered[4]{
             self.posts.insert(0, "sns_posts#money".to_string());
-            self.comments[5].draw();
             self.posted = true; 
             self.triggered[4] = true;
             return self.posted;
         }
 
-        if cleanliness > 8 {
+        if cleanliness > 8 && !self.triggered[5]{
             self.posts.insert(0, "sns_posts#gigachad".to_string());
-            self.comments[6].draw();
             self.posted = true; 
             self.triggered[5] = true;
             return self.posted;

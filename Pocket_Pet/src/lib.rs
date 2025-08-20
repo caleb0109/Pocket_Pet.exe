@@ -445,7 +445,8 @@ impl GameState {
             tracker = (self.postPage * 2) + 1;
         }
     }
-    
+    text!("{:?}", tracker; x = 0, y = 0);
+    text!("{:?}", self.sns.posts.len(); x = 0, y = 10);
     for n in 0..self.sns.posts.len() {
         if n == tracker {
             if self.sns.posts[tracker] == "sns_posts#intro".to_string() {
@@ -454,8 +455,20 @@ impl GameState {
             } else if self.sns.posts[tracker] == "sns_posts#hunger".to_string() {
                 let commented = Comment::watch("hunger").parse().unwrap_or(Comment { Comments: vec![] });
                 self.allComments = commented.Comments.clone();
-            } else if self.sns.posts[tracker] == "sns_posts#clean" {
+            } else if self.sns.posts[tracker] == "sns_posts#dirty" {
                 let commented = Comment::watch("clean").parse().unwrap_or(Comment { Comments: vec![] });
+                self.allComments = commented.Comments.clone();
+            } else if self.sns.posts[tracker] == "sns_posts#hunger_resolved" {
+                let commented = Comment::watch("hungRes").parse().unwrap_or(Comment { Comments: vec![] });
+                self.allComments = commented.Comments.clone();
+            } else if self.sns.posts[tracker] == "sns_posts#dirty_resolved" {
+                let commented = Comment::watch("cleanRes").parse().unwrap_or(Comment { Comments: vec![] });
+                self.allComments = commented.Comments.clone();
+            } else if self.sns.posts[tracker] == "sns_posts#money" {
+                let commented = Comment::watch("money").parse().unwrap_or(Comment { Comments: vec![] });
+                self.allComments = commented.Comments.clone();
+            } else if self.sns.posts[tracker] == "sns_posts#gigachad" {
+                let commented = Comment::watch("gigaChad").parse().unwrap_or(Comment { Comments: vec![] });
                 self.allComments = commented.Comments.clone();
             }
         }
@@ -483,7 +496,13 @@ impl GameState {
                 }
 
                 // Append all other chars to the buffer
-                ch => self.comment.push(ch),
+                ch => {
+                    if self.comment.len() == 25 {
+                        self.comment.pop();
+                    } else {
+                        self.comment.push(ch);
+                    }
+                }
             }
         }
  
@@ -538,6 +557,10 @@ impl CommandHandler for PostComment {
         let mut firstComm = fs::read("firstComm").unwrap_or(Comment {Comments: vec![]});
         let mut hungerComm = fs::read("hunger").unwrap_or(Comment{Comments: vec![]});
         let mut cleanComm = fs::read("clean").unwrap_or(Comment{Comments: vec![]});
+        let mut hungResComm = fs::read("hungRes").unwrap_or(Comment{Comments: vec![]});
+        let mut cleanResComm = fs::read("cleanRes").unwrap_or(Comment{Comments: vec![]});
+        let mut moneyComm = fs::read("money").unwrap_or(Comment{Comments: vec![]});
+        let mut gigaComm = fs::read("gigaChad").unwrap_or(Comment{Comments: vec![]});
 
         //tracks which comment section was accessed
         let mut tracker: usize = 0;
@@ -572,8 +595,20 @@ impl CommandHandler for PostComment {
                 if self.PostID[tracker] == "sns_posts#hunger" {
                     hungerComm.Comments = self.fileRead(hungerComm.Comments.clone());
                 }
-                if self.PostID[tracker] == "sns_posts#clean" {
+                if self.PostID[tracker] == "sns_posts#dirty" {
                     cleanComm.Comments = self.fileRead(cleanComm.Comments.clone());
+                }
+                if self.PostID[tracker] == "sns_posts#hunger_resolved" {
+                    hungResComm.Comments = self.fileRead(hungResComm.Comments.clone());
+                }
+                if self.PostID[tracker] == "sns_posts#dirty_resolved" {
+                    cleanResComm.Comments = self.fileRead(cleanResComm.Comments.clone());
+                }
+                if self.PostID[tracker] == "sns_posts#money" {
+                    moneyComm.Comments = self.fileRead(moneyComm.Comments.clone());
+                }
+                if self.PostID[tracker] == "sns_posts#gigachad" {
+                    gigaComm.Comments = self.fileRead(gigaComm.Comments.clone());
                 }
             }
         }
@@ -582,10 +617,18 @@ impl CommandHandler for PostComment {
         log!("{:?}", firstComm);
         log!("{:?}", hungerComm);
         log!("{:?}", cleanComm);
+        log!("{:?}", hungResComm);
+        log!("{:?}", cleanResComm);
+        log!("{:?}", moneyComm);
+        log!("{:?}", gigaComm);
         //writes to all files with most recent data
         fs::write("firstComm", &firstComm.Comments)?;
         fs::write("hunger", &hungerComm.Comments)?;
         fs::write("clean", &cleanComm.Comments)?;
+        fs::write("hungRes", &hungResComm.Comments)?;
+        fs::write("cleanRes", &cleanResComm.Comments)?;
+        fs::write("money", &moneyComm.Comments)?;
+        fs::write("gigaChad", &gigaComm.Comments)?;
         Ok(())
     }
     
@@ -611,6 +654,10 @@ impl CommandHandler for Reset {
         let mut firstComm = fs::read("firstComm").unwrap_or(Comment {Comments: vec![]});
         let mut hungerComm = fs::read("hunger").unwrap_or(Comment{Comments: vec![]});
         let mut cleanComm = fs::read("clean").unwrap_or(Comment{Comments: vec![]});
+        let mut hungResComm = fs::read("hungRes").unwrap_or(Comment{Comments: vec![]});
+        let mut cleanResComm = fs::read("cleanRes").unwrap_or(Comment{Comments: vec![]});
+        let mut moneyComm = fs::read("money").unwrap_or(Comment{Comments: vec![]});
+        let mut gigaComm = fs::read("gigaChad").unwrap_or(Comment{Comments: vec![]});
         
         let mut tracker: usize = 0;
         if self.PostComm == 0 {
@@ -639,12 +686,28 @@ impl CommandHandler for Reset {
                 if self.PostID[tracker] == "sns_posts#clean" {
                     cleanComm.Comments = vec![];
                 }
+                if self.PostID[tracker] == "sns_posts#hunger_resolved" {
+                    hungResComm.Comments = vec![];
+                }
+                if self.PostID[tracker] == "sns_posts#dirty_resolved" {
+                    cleanResComm.Comments = vec![];
+                }
+                if self.PostID[tracker] == "sns_posts#money" {
+                    moneyComm.Comments = vec![];
+                }
+                if self.PostID[tracker] == "sns_posts#gigachad" {
+                    gigaComm.Comments = vec![];
+                }
             }
         }
 
         fs::write("firstComm", &firstComm.Comments)?;
         fs::write("hunger", &hungerComm.Comments)?;
         fs::write("clean", &cleanComm.Comments)?;
+        fs::write("hungRes", &hungResComm.Comments)?;
+        fs::write("cleanRes", &cleanResComm.Comments)?;
+        fs::write("money", &moneyComm.Comments)?;
+        fs::write("gigaChad", &gigaComm.Comments)?;
         Ok(())
     }
 }
