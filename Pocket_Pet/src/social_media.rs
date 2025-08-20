@@ -7,7 +7,7 @@ pub struct SocialMedia{
     pub posts: Vec<String>,
     pub pages: Vec<bool>,
     pub comments: Vec<ActionButton>,
-    pub triggered: [bool; 3],
+    pub triggered: [bool; 6],
     pub cActive: bool,
 }
 
@@ -20,13 +20,13 @@ impl SocialMedia {
             comments: vec![ActionButton::new("comment", (41,31,13,13), false), //please dont ask why its 31 LOL
                            ActionButton::new("comment", (41,104,13,13), false),
                            ActionButton::new("comment", (41,104,13,13), false)],
-            triggered: [false, false, false],
+            triggered: [false, false, false, false, false, false],
             cActive: false,
         }
     }
 
     //checks if the criteria for a new post has been fulfilled
-    pub fn check_post(&mut self, unread: bool, hunger: u32, cleanliness: u32) -> bool {
+    pub fn check_post(&mut self, unread: bool, hunger: u32, cleanliness: u32, money: i32) -> bool {
         self.comments[0].draw();
 
         if hunger == 0 && !self.triggered[0] {
@@ -39,12 +39,44 @@ impl SocialMedia {
         }
         
         if cleanliness == 0 && !self.triggered[1] {
-            self.posts.insert(0, "sns_posts#clean".to_string());
+            self.posts.insert(0, "sns_posts#dirty".to_string());
             self.comments[2].draw();
             self.posted = true;
             self.triggered[1] = true;
             return self.posted;
             
+        }
+
+        if self.triggered[0] && hunger > 1 {
+            self.posts.insert(0, "sns_posts#hunger_resolved".to_string());
+            self.comments[3].draw();
+            self.posted = true; 
+            self.triggered[2] = true;
+            return self.posted;
+        }
+
+        if self.triggered[1] && cleanliness > 1 {
+            self.posts.insert(0, "sns_posts#dirty_resolved".to_string());
+            self.comments[4].draw();
+            self.posted = true; 
+            self.triggered[3] = true;
+            return self.posted;
+        }
+
+        if money == 7 {
+            self.posts.insert(0, "sns_posts#money".to_string());
+            self.comments[5].draw();
+            self.posted = true; 
+            self.triggered[4] = true;
+            return self.posted;
+        }
+
+        if cleanliness > 8 {
+            self.posts.insert(0, "sns_posts#gigachad".to_string());
+            self.comments[6].draw();
+            self.posted = true; 
+            self.triggered[5] = true;
+            return self.posted;
         }
 
         if unread == true {
