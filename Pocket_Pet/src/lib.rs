@@ -54,7 +54,7 @@ impl GameState {
                 ActionButton::new("return", (218, 71, 19, 19), false),
                 ActionButton::new("arrowup", (18, 125, 11, 14), false),
                 ActionButton::new("arrowdown", (18, 141, 11, 14), false),
-                ActionButton::new("comment", (-230, 127, 200, 13), false),
+                ActionButton::new("entercomment", (-196, 136, 156, 19), false),
                 ActionButton::new("sns", (-22, 71, 19, 19), false)
             ],
             player: Player::new(),
@@ -155,7 +155,15 @@ impl GameState {
    
 
 //Screen
-    sprite!("screen", x = 264, y = 19);
+    
+    match self.player.affection {
+        0 | 1  => sprite!("screen#1", x = 264, y = 19),
+        2 | 3 => sprite!("screen#2", x = 264, y = 19),
+        4 | 5 => sprite!("screen#3", x = 264, y = 19),
+        6 | 7 => sprite!("screen#4", x = 264, y = 19),
+        8 | 9 | 10 => sprite!("screen#5", x = 264, y = 19),
+        _ => sprite!("screen#1", x = 264, y = 19),
+    }
 
     let day = self.player.day.to_string();
     text!("DAY {}", &day; x = 273, y = 105, color = 0x22406eff, font = "FIVEPIXELS");
@@ -363,7 +371,7 @@ impl GameState {
             self.uibuttons[6].sns_notif(self.unread);
         }
     }
-    self.uibuttons[10].tempDraw();
+    //self.uibuttons[10].tempDraw();
 
     //textbox
     let t = time::tick();
@@ -377,7 +385,8 @@ impl GameState {
 
     //Social Media UI
     sprite!("sns_bg", x = 32, y = 0);
-    self.unread = self.sns.check_post(self.unread, self.player.hunger, self.player.cleanliness);
+    sprite!("sns_bg", x = -208, y = 0);
+    self.unread = self.sns.check_post(self.unread, self.player.hunger, self.player.cleanliness, self.player.affection);
     self.sns.draw_page();
 
     for n in 0..self.sns.comments.len() {
@@ -479,16 +488,20 @@ impl GameState {
     //text!("Affection: {:?}", self.player.affection; x = 285, y = 0, color = 0x22406eff);
     //text!("hunger: {:?}", self.player.hunger; x = 430, y = 0, color = 0x22406eff, font = "FIVEPIXELS");
     //text!("Pipi count: {:?}", self.uibuttons[5].count; x = 415, y = 10, color = 0x22406eff);
+
     let mut movingY = 20;
     for n in 0..self.allComments.len() {
-        text!("{:?}", self.allComments[n]; x = -230, y = movingY);
-        movingY += 10;
+        sprite!("commentbubble", x = -177, y = movingY);
+        text!("{:?}", self.allComments[n]; x = -171, y = movingY);
+        movingY += 21;
     }
+
+    
     if self.player.day > self.player.due_date || self.player.affection >= self.player.affectionmax{
         *self = Self::new();
     }
-    text!("{:?}", self.sns.posts; x = -240, y = 0);
-    text!("{:?}", self.postID; x = -240, y = 10)
+    text!("{:?}", self.sns.posts; x = 0, y = 0);
+    text!("{:?}", self.postID; x = -240, y = 10);
     // Save GameState
     }
 }
