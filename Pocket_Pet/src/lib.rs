@@ -13,7 +13,6 @@ use textbox::TextBox;
 use turbo::time::tick;
 use turbo::*;
 use turbo::os::server::*;
-use mrdirector;
 
 
 
@@ -78,6 +77,11 @@ impl GameState {
     }
     pub fn update(&mut self) {
 
+    if !audio::is_playing("pipiDefault") {
+        audio::play("pipiDefault");
+        audio::set_volume("pipiDefault", 0.2);
+    } 
+    
     camera::set_xy(self.cameraPos.0,self.cameraPos.1);
     if self.cameraPos.0 == 120 { 
         self.select = (218, 71);
@@ -238,7 +242,7 @@ impl GameState {
     //sets the select to the location that is being highlighted either by mouse or keyboard
     //goes through for loop to see which button was pressed
     // Draw
-    
+    let t = time::tick();
     let can_click = anim.sprite_name() == "screen_anims#empty";    
     for n in 0..self.uibuttons.len() {
         self.select = self.uibuttons[n].check(self.select);
@@ -253,6 +257,11 @@ impl GameState {
         if self.textbox.speaking == true {
             self.uibuttons[n].action = false;
         } 
+        if self.player.day == 12 && t >= self.timeStamp + 5 {
+            if self.textbox.speaking == false {
+                self.player.day += 1;
+            }
+        }
         // if self.uibuttons[n].action && can_click {
         // // if self.textbox.speaking == false && time::tick() % 180 == 0 && self.cant_click_textbox == false {
         // //     self.cant_click_textbox = true;
@@ -282,9 +291,16 @@ impl GameState {
                 }
                 4 => {
                     self.player.go_sleep();
-                    self.timeStamp = time::tick() + 102;
+                    self.timeStamp = time::tick() + 95;
                     self.timepass = self.uibuttons[5].randomIdle();
                     self.uibuttons[4].action = false;
+                    if self.player.day == 6 {
+                        if self.player.affection > 7 {
+                            self.player.affection -= 3;
+                        } else if self.player.affection < 6 && self.player.affection > 1{
+                            self.player.affection -= 1;
+                        }
+                    }
                 }
                 5 => {
                     self.uibuttons[5].action = false;
@@ -373,13 +389,13 @@ impl GameState {
     }
     //self.uibuttons[10].tempDraw();
 
-    //textbox
-    let t = time::tick();
+    
     //text!("{:?}", self.timeStamp; x = 240, y = 0);
     if can_click && t == self.timeStamp{
         //text!("YES", x = 240, y = 10);
         self.textbox.changeDay(self.player.day);
     }
+
 
     self.textbox.drawText(t);
 
@@ -484,25 +500,17 @@ impl GameState {
         }
         text!("{:?}", self.comment; x = self.uibuttons[10].hitbox.0, y = self.uibuttons[10].hitbox.1, color = 0x22406eff, font = "FIVEPIXELS");
     }
-    //Stats
-    //text!("Affection: {:?}", self.player.affection; x = 285, y = 0, color = 0x22406eff);
-    //text!("hunger: {:?}", self.player.hunger; x = 430, y = 0, color = 0x22406eff, font = "FIVEPIXELS");
-    //text!("Pipi count: {:?}", self.uibuttons[5].count; x = 415, y = 10, color = 0x22406eff);
 
+    //Showing all comments in post
     let mut movingY = 20;
     for n in 0..self.allComments.len() {
         sprite!("commentbubble", x = -177, y = movingY);
         text!("{:?}", self.allComments[n]; x = -171, y = movingY);
         movingY += 21;
     }
-
-    
-    if self.player.day > self.player.due_date || self.player.affection >= self.player.affectionmax{
+    if self.player.day >= self.player.due_date || self.player.affection >= self.player.affectionmax{
         *self = Self::new();
     }
-    text!("{:?}", self.sns.posts; x = 0, y = 0);
-    text!("{:?}", self.postID; x = -240, y = 10);
-    // Save GameState
     }
 }
 
@@ -520,12 +528,17 @@ pub struct PostComment {
 }
 impl CommandHandler for PostComment {
     fn run(&mut self, user_id: &str) -> Result<(), std::io::Error> {
+        //reads files for each comment section
         let mut firstComm = fs::read("firstComm").unwrap_or(Comment {Comments: vec![]});
         let mut hungerComm = fs::read("hunger").unwrap_or(Comment{Comments: vec![]});
         let mut cleanComm = fs::read("clean").unwrap_or(Comment{Comments: vec![]});
 
+        //tracks which comment section was accessed
         let mut tracker: usize = 0;
 
+        //if the first comment button on whatever page was pressed,
+        //it will multiply the page by 2, but if the page is the first page
+        //then that means its the first post
         if self.PostComm == 0 {
             if self.PostPage == 0 {
                 tracker = 0;
@@ -533,6 +546,9 @@ impl CommandHandler for PostComment {
                 tracker = self.PostPage * 2;
             }
         }
+        //if the second comment button on whatever page was pressed,
+        //it will multiply the page by 2 and add 1, but if the page is the first page
+        //then that means its the second post
         if self.PostComm == 2 {
             if self.PostPage == 0 {
                 tracker = 1;
@@ -540,6 +556,8 @@ impl CommandHandler for PostComment {
                 tracker = (self.PostPage * 2) + 1;
             }
         }
+
+        //for loop to check which post's comment section was pressed
         for n in 0..self.PostID.len() {
             if n == tracker {
                 if self.PostID[tracker] == "sns_posts#intro" {
@@ -558,11 +576,13 @@ impl CommandHandler for PostComment {
         log!("{:?}", firstComm);
         log!("{:?}", hungerComm);
         log!("{:?}", cleanComm);
+        //writes to all files with most recent data
         fs::write("firstComm", &firstComm.Comments)?;
         fs::write("hunger", &hungerComm.Comments)?;
         fs::write("clean", &cleanComm.Comments)?;
         Ok(())
     }
+    
 }
 
 impl PostComment {

@@ -25,10 +25,21 @@ impl TextBox {
                 let n = self.lines.iter().position(|line| line == "--day1");
                 self.current_line = n.unwrap_or(0) + 1;
                 self.speaking = true;
-                                
+                audio::play("pipiDefault");
+                audio::set_volume("pipiDefault", 0.2);
             }
             2 => {
                 let n = self.lines.iter().position(|line| line == "--day2");
+                self.current_line = n.unwrap_or(0) + 1;
+                self.speaking = true;
+            }
+            6 => {
+                let n = self.lines.iter().position(|line| line == "--day6");
+                self.current_line = n.unwrap_or(0) + 1;
+                self.speaking = true;
+            }
+            12 => {
+                let n = self.lines.iter().position(|line| line == "--day12");
                 self.current_line = n.unwrap_or(0) + 1;
                 self.speaking = true;
             }
