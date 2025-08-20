@@ -133,7 +133,7 @@ impl GameState {
         _ => clear(0xfae3deff),
     }
     let frame = (self.frame as i32) / 2;
-    for col in 0..27 {
+    for col in -13..27 {
         for row in 0..9 {
             let x = col * 18;
             let y = (row * 18 + frame) % (160);
@@ -141,6 +141,9 @@ impl GameState {
         }
     }
     self.frame += 1;
+
+    sprite!("sns_bg", x = 32, y = 0);
+    sprite!("sns_bg", x = -208, y = 0);
 
 //affection bar
 //the values are hard coded, if you need to change the affectionmax, the sprites need to be changed as well
@@ -403,8 +406,6 @@ impl GameState {
     self.textbox.drawText(t);
 
     //Social Media UI
-    sprite!("sns_bg", x = 32, y = 0);
-    sprite!("sns_bg", x = -208, y = 0);
     self.unread = self.sns.check_post(self.unread, self.player.hunger, self.player.cleanliness, self.player.affection);
     self.sns.draw_page();
 
@@ -501,16 +502,18 @@ impl GameState {
         if keyboard.backspace().just_pressed() {
             self.comment.pop();
         }
-        text!("{:?}", self.comment; x = self.uibuttons[10].hitbox.0, y = self.uibuttons[10].hitbox.1, color = 0x22406eff, font = "FIVEPIXELS");
+        text!(&self.comment, x = self.uibuttons[10].hitbox.0 + 2, y = self.uibuttons[10].hitbox.1 + 1, color = 0x22406eff, font = "FIVEPIXELS");
     }
 
     //Showing all comments in post
-    let mut movingY = 20;
+    let mut movingY = 27;
     for n in 0..self.allComments.len() {
         sprite!("commentbubble", x = -177, y = movingY);
-        text!("{:?}", self.allComments[n]; x = -171, y = movingY);
+        sprite!("otherplayericon", x = -189, y = movingY);
+        text!(&self.allComments[n], x = -171, y = movingY + 1, color = 0x22406eff);
         movingY += 21;
     }
+
     if self.player.day >= self.player.due_date || self.player.affection > self.player.affectionmax{
         *self = Self::new();
     }
