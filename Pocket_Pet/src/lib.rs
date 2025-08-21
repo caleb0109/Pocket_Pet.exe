@@ -68,7 +68,7 @@ impl GameState {
                 ("social_media_change".to_string(), Tween::new(0.)),
                 ("main_screen_change".to_string(), Tween::new(0.)),
             ]),
-            cameraPos: (360, 240),
+            cameraPos: (360, 175),
             comment: "".to_string(),
             allComments: vec![],
             postID: 0,
@@ -395,20 +395,23 @@ impl GameState {
             self.uibuttons[6].sns_notif(self.unread);
         }
     }
-    //self.uibuttons[10].tempDraw();
+    //intro draw
     sprite!("titlescreen", x = 240, y = 160);
     self.uibuttons[12].draw();
-    //text!("{:?}", self.timeStamp; x = 240, y = 0);
-    if can_click && t == self.timeStamp{
-        text!("YES", x = 240, y = 10);
-        self.textbox.changeDay(self.player.day);
+
+    text!("{:?}", self.timeStamp; x = 240, y = 0);
+    if self.player.day != 1 {
+        if can_click && t == self.timeStamp{
+            self.textbox.changeDay(self.player.day);
+        }
     }
+    
     if self.player.affection == self.player.affectionmax && t == self.timeStamp + 4{
         self.textbox.affectionMaxEnd();
     }
-    self.textbox.drawText(t);
-    text!("{:?}", self.player.affection; x = 240, y = 10);
-    text!("{:?}", self.timeStamp; x = 240, y = 20);
+    if self.player.day != 0 {
+        self.textbox.drawText(t);
+    }
     //Social Media UI
     self.unread = self.sns.check_post(self.unread, self.player.hunger, self.player.cleanliness, self.player.affection);
     self.sns.draw_page();
@@ -449,8 +452,6 @@ impl GameState {
             tracker = (self.postPage * 2) + 1;
         }
     }
-    text!("{:?}", tracker; x = 0, y = 0);
-    text!("{:?}", self.sns.posts.len(); x = 0, y = 10);
     for n in 0..self.sns.posts.len() {
         if n == tracker {
             if self.sns.posts[tracker] == "sns_posts#intro".to_string() {
@@ -476,9 +477,8 @@ impl GameState {
                 self.allComments = commented.Comments.clone();
             }
         }
-        
     }
-    //text!("{:?}", self.postID; x = -220, y = 0);
+    
     if self.sns.cActive || self.introType{
         let keyboard = keyboard::get();
             
@@ -493,6 +493,7 @@ impl GameState {
                         self.introType = false;
                         self.cameraPos.1 = 80;
                         self.player.day += 1;
+                        self.textbox.changeDay(self.player.day);
                         //self.allComments = vec![];
                     } else {
                         self.uibuttons[10].action = false;
@@ -552,7 +553,7 @@ impl GameState {
     }
 
     if self.player.day >= self.player.due_date || self.player.affection > self.player.affectionmax{
-        *self = Self::new();
+        *self = GameState::new();
     }
     }
 }

@@ -15,7 +15,7 @@ impl TextBox {
             lines: SCRIPT_PATH.split("\r\n").map(|line| line.to_string()).collect(),
             current_line: 0,
             speaking: false,
-            animdone: false
+            animdone: true
         }
     }
 
@@ -94,6 +94,9 @@ impl TextBox {
     pub fn pipiAnim(&mut self) -> bool{
         let summon = animation::get("summon");
         summon.use_sprite("PIPI_summon");
+        if self.animdone == true {
+            summon.restart();
+        }
         if self.lines[self.current_line] == "--pipisummon" {
             self.animdone = false;
             sprite!(animation_key = "summon", x = 320, y = 30);
@@ -101,9 +104,7 @@ impl TextBox {
             summon.set_fill_forwards(true);
         }
 
-        // if self.animdone == true {
-        //     summon.restart();
-        // }
+        
         //log!("{:?}", summon.done());
         return summon.done();
         
