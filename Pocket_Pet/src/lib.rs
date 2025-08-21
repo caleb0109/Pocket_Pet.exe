@@ -267,10 +267,11 @@ impl GameState {
         }
         if self.player.affection == self.player.affectionmax && t >= self.timeStamp + 5 {
             if self.textbox.speaking == false {
-                //self.player.affection += 1;
+                self.player.affection += 1;
             }
         }
         if self.uibuttons[n].action && can_click{
+            self.timeStamp = time::tick() + 95;
             match n {
                 0 => {
                     self.player.feed(self.uibuttons[0].luxury);
@@ -290,15 +291,10 @@ impl GameState {
                 3 => {
                     self.player.allowance();
                     self.timepass = self.uibuttons[5].randomIdle();
-                    if self.player.affection == self.player.affectionmax {
-                        text!("HIDHOASDOSADKASDdml", x = 240, y = 10);
-                        self.textbox.affectionMaxEnd();
-                    }
                     self.uibuttons[3].action = false;
                 }
                 4 => {
                     self.player.go_sleep();
-                    self.timeStamp = time::tick() + 95;
                     self.timepass = self.uibuttons[5].randomIdle();
                     self.uibuttons[4].action = false;
                     if self.player.day == 6 {
@@ -402,9 +398,12 @@ impl GameState {
         text!("YES", x = 240, y = 10);
         self.textbox.changeDay(self.player.day);
     }
-
+    if self.player.affection == self.player.affectionmax && t == self.timeStamp + 4{
+        self.textbox.affectionMaxEnd();
+    }
     self.textbox.drawText(t);
-
+    text!("{:?}", self.player.affection; x = 240, y = 10);
+    text!("{:?}", self.timeStamp; x = 240, y = 20);
     //Social Media UI
     self.unread = self.sns.check_post(self.unread, self.player.hunger, self.player.cleanliness, self.player.affection);
     self.sns.draw_page();
