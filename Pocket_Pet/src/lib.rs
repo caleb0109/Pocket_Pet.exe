@@ -37,6 +37,7 @@ struct GameState{
     timepass: usize,
     introType: bool,
     repeatText: bool,
+    upAnim: [bool; 3]
 } 
 
 
@@ -77,7 +78,8 @@ impl GameState {
             timeStamp: time::tick(),
             timepass: 0,
             introType: false,
-            repeatText: false
+            repeatText: false,
+            upAnim: [false, false, false],
         }
     }
     pub fn update(&mut self) {
@@ -245,13 +247,53 @@ impl GameState {
             }          
         }
     sprite!(animation_key = "screenanim", default_sprite = "screen_anims#empty", x = 264, y = 19);
+    
+    let t = time::tick();
+    
+    let cUp = animation::get("cUp");
+    let aUp = animation::get("aUp");
 
+    if self.upAnim[0] {
+        let hUp = animation::get("hUp");
+        hUp.use_sprite("hungerup");
+        if t >= self.timeStamp + 10 {
+            sprite!(animation_key = "hUp", x = 318, y = 34);
+            hUp.set_repeat(1);
+        }
+        if t == self.timeStamp + 72 {
+            hUp.restart();
+            self.upAnim[0] = false;
+
+        }      
+    }
+    if self.upAnim[1] { 
+        if t >= self.timeStamp + 19 {
+            cUp.use_sprite("cleanlinessup");
+            sprite!(animation_key = "cUp", x = 321, y = 43);
+            cUp.set_repeat(1);
+            cUp.set_fill_forwards(true);
+        }
+        if t == self.timeStamp + 83 {
+            self.upAnim[1] = false;
+            cUp.restart();
+        }   
+    }
+    if self.upAnim[2] { 
+        if t >= self.timeStamp + 42 {
+            aUp.use_sprite("affectionup");
+            sprite!(animation_key = "aUp", x = 390, y = 38);
+            aUp.set_repeat(1);
+        }
+        if t == self.timeStamp + 100 {
+            self.upAnim[2] = false;
+            aUp.restart();
+        } 
+    }
 
     //sets the select to the location that is being highlighted either by mouse or keyboard
     //goes through for loop to see which button was pressed
     // Draw
-    let t = time::tick();
-    let can_click = anim.sprite_name() == "screen_anims#empty";    
+    let can_click = anim.sprite_name() == "screen_anims#empty";   
     for n in 0..self.uibuttons.len() {
         self.select = self.uibuttons[n].check(self.select);
         if self.uibuttons[n].action && !can_click {
@@ -282,11 +324,13 @@ impl GameState {
                     self.player.feed(self.uibuttons[0].luxury);
                     self.timepass = self.uibuttons[5].randomIdle();
                     self.uibuttons[0].action = false;
+                    self.upAnim[0] = true;
                 }
                 1 => {
                     self.player.shower(self.uibuttons[1].luxury);
                     self.timepass = self.uibuttons[5].randomIdle();
                     self.uibuttons[1].action = false;
+                    self.upAnim[1] = true;
                 }
                 2 => {
                     self.player.working();
@@ -297,6 +341,7 @@ impl GameState {
                     self.player.allowance();
                     self.timepass = self.uibuttons[5].randomIdle();
                     self.uibuttons[3].action = false;
+                    self.upAnim[2] = true;
                 }
                 4 => {
                     self.player.go_sleep();
@@ -385,14 +430,16 @@ impl GameState {
     //intro draw
     sprite!("titlescreen", x = 240, y = 160);
     self.uibuttons[12].draw();
-
+    
+    
     //pay deduction
     if self.player.hunger == 0 || self.player.cleanliness == 0 {
         self.player.salary = 1;
     } else {
         self.player.salary = 3;
     }
-    text!("{:?}", self.timeStamp; x = 240, y = 0);
+
+    //sets up correct event text
     if self.player.day != 1 {
         if can_click && t == self.timeStamp && !self.repeatText{
             self.textbox.changeDay(self.player.day);
@@ -400,9 +447,11 @@ impl GameState {
         }
     }
     
+    //good ending text
     if self.player.affection == self.player.affectionmax && t == self.timeStamp + 4{
         self.textbox.affectionMaxEnd();
     }
+    //draws text
     if self.player.day != 0 {
         self.textbox.drawText(t);
     }
