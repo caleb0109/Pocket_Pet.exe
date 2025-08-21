@@ -8,6 +8,7 @@ pub struct TextBox {
     pub current_line: usize,
     pub speaking: bool,
     pub animdone: bool,
+    pub cgshowing: bool
 }
 impl TextBox {
     pub fn new() -> Self {
@@ -15,7 +16,8 @@ impl TextBox {
             lines: SCRIPT_PATH.split("\r\n").map(|line| line.to_string()).collect(),
             current_line: 0,
             speaking: false,
-            animdone: true
+            animdone: true,
+            cgshowing: false
         }
     }
 
@@ -55,6 +57,7 @@ impl TextBox {
         } else {
             text = &self.lines[self.current_line];
         }
+        
             
         if self.speaking == true {
             sprite!("speechbubble", x = 256, y= 114);
@@ -71,7 +74,7 @@ impl TextBox {
             }
             self.pipiAnim();
             self.assessLine();
-
+            self.pipiCG();
             
         }
     }
@@ -102,11 +105,22 @@ impl TextBox {
             sprite!(animation_key = "summon", x = 320, y = 30);
             summon.set_repeat(1);
             summon.set_fill_forwards(true);
-        }
-
-        
+        }      
         //log!("{:?}", summon.done());
-        return summon.done();
+        return summon.done();    
+    }
+
+    //maybe draw full cg
+    pub fn pipiCG(&mut self) {
+        if self.lines[self.current_line] == "--cg" {
+            self.cgshowing = true;
+        } else if self.lines[self.current_line] == "--cgdone" {
+            self.cgshowing = false;
+        } 
+
+        if self.cgshowing {
+            sprite!("ending", x = 240, y = 0);
+        } 
         
     }
 
