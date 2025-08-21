@@ -56,7 +56,7 @@ impl GameState {
                 ActionButton::new("arrowdown", (18, 141, 11, 14), false),
                 ActionButton::new("entercomment", (-196, 136, 156, 19), false),
                 ActionButton::new("sns", (-22, 71, 19, 19), false),
-                ActionButton::new("titlescreen_text", (316, 251, 156, 19), false)
+                ActionButton::new("titlescreen_text", (316, 252, 156, 19), false)
             ],
             player: Player::new(),
             sns: SocialMedia::new(),
@@ -68,7 +68,7 @@ impl GameState {
                 ("social_media_change".to_string(), Tween::new(0.)),
                 ("main_screen_change".to_string(), Tween::new(0.)),
             ]),
-            cameraPos: (360, 175),
+            cameraPos: (360, 240),
             comment: "".to_string(),
             allComments: vec![],
             postID: 0,
@@ -457,24 +457,31 @@ impl GameState {
             if self.sns.posts[tracker] == "sns_posts#intro".to_string() {
                 let commented = Comment::watch("firstComm").parse().unwrap_or(Comment { Comments: vec![] });
                 self.allComments = commented.Comments.clone();
+                sprite!("posts_text#intro", x = -183, y = 8);
             } else if self.sns.posts[tracker] == "sns_posts#hunger".to_string() {
                 let commented = Comment::watch("hunger").parse().unwrap_or(Comment { Comments: vec![] });
                 self.allComments = commented.Comments.clone();
+                sprite!("posts_text#hungry", x = -183, y = 8);
             } else if self.sns.posts[tracker] == "sns_posts#dirty" {
                 let commented = Comment::watch("clean").parse().unwrap_or(Comment { Comments: vec![] });
                 self.allComments = commented.Comments.clone();
+                 sprite!("posts_text#clean", x = -183, y = 8);
             } else if self.sns.posts[tracker] == "sns_posts#hunger_resolved" {
                 let commented = Comment::watch("hungRes").parse().unwrap_or(Comment { Comments: vec![] });
                 self.allComments = commented.Comments.clone();
+                sprite!("posts_text#hunger_resolved", x = -183, y = 8);
             } else if self.sns.posts[tracker] == "sns_posts#dirty_resolved" {
                 let commented = Comment::watch("cleanRes").parse().unwrap_or(Comment { Comments: vec![] });
                 self.allComments = commented.Comments.clone();
+                sprite!("posts_text#dirty_resolved", x = -183, y = 8);
             } else if self.sns.posts[tracker] == "sns_posts#money" {
                 let commented = Comment::watch("money").parse().unwrap_or(Comment { Comments: vec![] });
                 self.allComments = commented.Comments.clone();
+                sprite!("posts_text#money", x = -183, y = 8);
             } else if self.sns.posts[tracker] == "sns_posts#gigachad" {
                 let commented = Comment::watch("gigaChad").parse().unwrap_or(Comment { Comments: vec![] });
                 self.allComments = commented.Comments.clone();
+                sprite!("posts_text#gigachad", x = -183, y = 8);
             }
         }
     }
@@ -537,7 +544,7 @@ impl GameState {
             self.comment.pop();
         }
         if self.introType {
-            text!(&self.comment, x = self.uibuttons[12].hitbox.0 + 2, y = self.uibuttons[12].hitbox.1 + 1, color = 0x22406eff, font = "FIVEPIXELS");
+            text!(&self.comment, x = self.uibuttons[12].hitbox.0 + 3, y = self.uibuttons[12].hitbox.1 + 1, color = 0x22406eff, font = "FIVEPIXELS");
         } else {
             text!(&self.comment, x = self.uibuttons[10].hitbox.0 + 2, y = self.uibuttons[10].hitbox.1 + 1, color = 0x22406eff, font = "FIVEPIXELS");
         }
@@ -551,6 +558,8 @@ impl GameState {
         text!(&self.allComments[n], x = -171, y = movingY + 1, color = 0x22406eff);
         movingY += 21;
     }
+
+    sprite!("icon", x = -202, y = 8);
 
     if self.player.day >= self.player.due_date || self.player.affection > self.player.affectionmax{
         *self = GameState::new();
