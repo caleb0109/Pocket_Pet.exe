@@ -23,15 +23,15 @@ pub struct Player{
 impl Player {
     pub fn new()-> Self {
         Self{
-            due_date: 13,
+            due_date: 15,
             day: 0,
             account: 4,
             salary: 3,
             activity: 3,
             affection: 0,
             affectionmax: 10,
-            hunger: 5,
-            cleanliness: 5,
+            hunger: 6,
+            cleanliness: 8,
             playanim: [false, false, false, false, false],
             name: "".to_string(),
         }
@@ -54,7 +54,7 @@ impl Player {
             }
             if self.account >= cost {
                 self.account -= cost;
-                self.hunger += 3;
+                self.hunger += 5;
                 self.cleanliness = self.decrease(self.cleanliness);
                 self.activity -= 1;
                 self.playanim[0] = true;
@@ -63,16 +63,16 @@ impl Player {
         }
     }
 
-    pub fn shower(&mut self, luxary: bool){
+    pub fn shower(&mut self, luxury: bool){
         let mut cost = 1;
         if self.active_check() {
-            if luxary {
+            if luxury {
                 cost = 2;
                 self.cleanliness += 5;
             }
             if self.account >= cost {
                 self.account -= cost;
-                self.cleanliness += 3;
+                self.cleanliness += 5;
                 self.hunger = self.decrease(self.hunger);
                 self.activity -= 1;
                 self.playanim[1] = true;
@@ -113,7 +113,7 @@ impl Player {
                 self.hunger = self.decrease(self.hunger);
                 self.cleanliness = self.decrease(self.cleanliness);
                 if self.affection < self.affectionmax {
-                   self.affection += 5; 
+                   self.affection += 1; 
                 }               
                 self.activity -= 1;
 

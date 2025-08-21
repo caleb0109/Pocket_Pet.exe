@@ -67,7 +67,7 @@ impl SocialMedia {
             return self.posted;
         }
 
-        if cleanliness > 8 && !self.triggered[5]{
+        if cleanliness > 12 && !self.triggered[5]{
             self.posts.insert(0, "sns_posts#gigachad".to_string());
             self.posted = true; 
             self.triggered[5] = true;

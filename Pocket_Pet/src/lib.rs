@@ -36,6 +36,7 @@ struct GameState{
     timeStamp: usize,
     timepass: usize,
     introType: bool,
+    repeatText: bool,
 } 
 
 
@@ -68,7 +69,7 @@ impl GameState {
                 ("social_media_change".to_string(), Tween::new(0.)),
                 ("main_screen_change".to_string(), Tween::new(0.)),
             ]),
-            cameraPos: (360, 175),
+            cameraPos: (360, 240),
             comment: "".to_string(),
             allComments: vec![],
             postID: 0,
@@ -76,6 +77,7 @@ impl GameState {
             timeStamp: time::tick(),
             timepass: 0,
             introType: false,
+            repeatText: false
         }
     }
     pub fn update(&mut self) {
@@ -263,7 +265,7 @@ impl GameState {
         if self.textbox.speaking == true {
             self.uibuttons[n].action = false;
         } 
-        if self.player.day == 12 && t >= self.timeStamp + 5 {
+        if self.player.day == 14 && t >= self.timeStamp + 5 {
             if self.textbox.speaking == false {
                 self.player.day += 1;
             }
@@ -300,10 +302,11 @@ impl GameState {
                     self.player.go_sleep();
                     self.timepass = self.uibuttons[5].randomIdle();
                     self.uibuttons[4].action = false;
+                    self.repeatText = false;
                     if self.player.day == 6 {
                         if self.player.affection > 7 {
                             self.player.affection -= 3;
-                        } else if self.player.affection < 6 && self.player.affection > 1{
+                        } else if self.player.affection < 6 && self.player.affection > 2{
                             self.player.affection -= 1;
                         }
                     }
@@ -313,11 +316,6 @@ impl GameState {
                 }
                 6 => {
                     self.cameraPos.0 = 120;
-                    //will look more into this tween
-                    // self.tweens.insert(
-                    //     "social_media_change".to_string(),
-                    //     Tween::new(360.).set(120.).duration(120).ease(Easing::EaseInOutSine)
-                    // );
                     self.unread = false;
                     self.sns.cActive = false;
                     self.uibuttons[6].action = false;
@@ -337,21 +335,10 @@ impl GameState {
                 8 => {
                     self.uibuttons[8].action = false;
                     self.sns.arrowup();
-                    // self.uibuttons[8].hitbox.1 -=160;
-                    // self.uibuttons[9].hitbox.1 -=160;
-                    // if self.cameraPos.1 < 80 {
-                    //     self.cameraPos.1 = 80;
-                    //     self.uibuttons[8].hitbox.1 = 125;
-                    //     self.uibuttons[9].hitbox.1 = 141;
-                    // }
                 }
                 9 => {
                     self.uibuttons[9].action = false;
-                    self.sns.arrowdown();
-                    // self.cameraPos.1 += 160;
-                    // self.uibuttons[8].hitbox.1 +=160;
-                    // self.uibuttons[9].hitbox.1 +=160;
-                    
+                    self.sns.arrowdown();              
                 }
                 10 => {
                     self.sns.cActive = true;
@@ -399,10 +386,17 @@ impl GameState {
     sprite!("titlescreen", x = 240, y = 160);
     self.uibuttons[12].draw();
 
+    //pay deduction
+    if self.player.hunger == 0 || self.player.cleanliness == 0 {
+        self.player.salary = 1;
+    } else {
+        self.player.salary = 3;
+    }
     text!("{:?}", self.timeStamp; x = 240, y = 0);
     if self.player.day != 1 {
-        if can_click && t == self.timeStamp{
+        if can_click && t == self.timeStamp && !self.repeatText{
             self.textbox.changeDay(self.player.day);
+            self.repeatText = true;
         }
     }
     
@@ -452,6 +446,7 @@ impl GameState {
             tracker = (self.postPage * 2) + 1;
         }
     }
+
     for n in 0..self.sns.posts.len() {
         if n == tracker {
             if self.sns.posts[tracker] == "sns_posts#intro".to_string() {
@@ -477,11 +472,12 @@ impl GameState {
                 self.allComments = commented.Comments.clone();
             }
         }
+
     }
     
     if self.sns.cActive || self.introType{
         let keyboard = keyboard::get();
-            
+        
         // Append keyboard input to the buffer
         for c in keyboard.chars() {
             match c {
@@ -490,6 +486,7 @@ impl GameState {
                     self.allComments.push(self.comment.to_string());
                     if self.introType {
                         self.uibuttons[12].action = false;
+                        self.player.name = self.comment.clone();
                         self.introType = false;
                         self.cameraPos.1 = 80;
                         self.player.day += 1;
@@ -537,12 +534,15 @@ impl GameState {
             self.comment.pop();
         }
         if self.introType {
+            text!("{}|", &self.comment; x = self.uibuttons[12].hitbox.0 + 2, y = self.uibuttons[12].hitbox.1 + 1, color = 0x22406eff, font = "FIVEPIXELS", opacity = if t % 32 < 16 { 1. } else { 0. });
             text!(&self.comment, x = self.uibuttons[12].hitbox.0 + 2, y = self.uibuttons[12].hitbox.1 + 1, color = 0x22406eff, font = "FIVEPIXELS");
         } else {
+            text!("{}|", &self.comment; x = self.uibuttons[10].hitbox.0 + 2, y = self.uibuttons[10].hitbox.1 + 1, color = 0x22406eff, font = "FIVEPIXELS", opacity = if t % 32 < 16 { 1. } else { 0. });
             text!(&self.comment, x = self.uibuttons[10].hitbox.0 + 2, y = self.uibuttons[10].hitbox.1 + 1, color = 0x22406eff, font = "FIVEPIXELS");
         }
     }
 
+    text!("{:?}", self.textbox.animdone; x = 240, y = 10);
     //Showing all comments in post
     let mut movingY = 27;
     for n in 0..self.allComments.len() {
