@@ -100,6 +100,10 @@ impl TextBox {
             summon.set_repeat(1);
             summon.set_fill_forwards(true);
         }
+
+        // if self.animdone == true {
+        //     summon.restart();
+        // }
         //log!("{:?}", summon.done());
         return summon.done();
         

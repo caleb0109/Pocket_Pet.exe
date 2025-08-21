@@ -19,7 +19,8 @@ impl SocialMedia {
             pages: vec![true],
             comments: vec![ActionButton::new("comment", (41,31,13,13), false), //please dont ask why its 31 LOL
                            ActionButton::new("comment", (41,104,13,13), false),
-                           ActionButton::new("comment", (41,104,13,13), false)],
+                           ActionButton::new("comment", (41,104,13,13), false)
+                           ],
             triggered: [false, false, false, false, false, false],
             cActive: false,
         }

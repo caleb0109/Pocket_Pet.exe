@@ -17,13 +17,14 @@ pub struct Player{
     pub hunger: u32, 
     pub cleanliness: u32,
     pub playanim: [bool; 5],
+    pub name: String,
 }
 
 impl Player {
     pub fn new()-> Self {
         Self{
             due_date: 13,
-            day: 1,
+            day: 0,
             account: 4,
             salary: 3,
             activity: 3,
@@ -32,6 +33,7 @@ impl Player {
             hunger: 5,
             cleanliness: 5,
             playanim: [false, false, false, false, false],
+            name: "".to_string(),
         }
     }
 

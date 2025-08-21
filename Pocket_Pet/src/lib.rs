@@ -20,7 +20,7 @@ use turbo::os::server::*;
 #[turbo::game]
 struct GameState{
     screen: u8,
-    uibuttons: [ActionButton; 12],
+    uibuttons: [ActionButton; 13],
     player: Player,
     sns: SocialMedia,
     textbox: TextBox,
@@ -35,6 +35,7 @@ struct GameState{
     postPage: usize,
     timeStamp: usize,
     timepass: usize,
+    introType: bool,
 } 
 
 
@@ -54,7 +55,8 @@ impl GameState {
                 ActionButton::new("arrowup", (18, 125, 11, 14), false),
                 ActionButton::new("arrowdown", (18, 141, 11, 14), false),
                 ActionButton::new("entercomment", (-196, 136, 156, 19), false),
-                ActionButton::new("sns", (-22, 71, 19, 19), false)
+                ActionButton::new("sns", (-22, 71, 19, 19), false),
+                ActionButton::new("titlescreen_text", (316, 251, 156, 19), false)
             ],
             player: Player::new(),
             sns: SocialMedia::new(),
@@ -66,13 +68,14 @@ impl GameState {
                 ("social_media_change".to_string(), Tween::new(0.)),
                 ("main_screen_change".to_string(), Tween::new(0.)),
             ]),
-            cameraPos: (360, 80),
+            cameraPos: (360, 240),
             comment: "".to_string(),
             allComments: vec![],
             postID: 0,
             postPage: 0,
             timeStamp: time::tick(),
             timepass: 0,
+            introType: false,
         }
     }
     pub fn update(&mut self) {
@@ -358,7 +361,9 @@ impl GameState {
                     self.cameraPos.0 = 120;
                     self.select = (218, 71);
                 }
-                
+                12 => {
+                    self.introType = true;
+                }
                 _ => {
                     text!("didn't work", x = 30, y = 40);
                 }
@@ -391,8 +396,8 @@ impl GameState {
         }
     }
     //self.uibuttons[10].tempDraw();
-
-    
+    sprite!("titlescreen", x = 240, y = 160);
+    self.uibuttons[12].draw();
     //text!("{:?}", self.timeStamp; x = 240, y = 0);
     if can_click && t == self.timeStamp{
         text!("YES", x = 240, y = 10);
@@ -474,7 +479,7 @@ impl GameState {
         
     }
     //text!("{:?}", self.postID; x = -220, y = 0);
-    if self.sns.cActive {
+    if self.sns.cActive || self.introType{
         let keyboard = keyboard::get();
             
         // Append keyboard input to the buffer
@@ -483,14 +488,22 @@ impl GameState {
                 // Clear the buffer when Enter is pressed
                 '\n' => {
                     self.allComments.push(self.comment.to_string());
-                    self.uibuttons[10].action = false;
-                    self.sns.cActive = false;
-                    let mut cmd = PostComment { 
+                    if self.introType {
+                        self.uibuttons[12].action = false;
+                        self.introType = false;
+                        self.cameraPos.1 = 80;
+                        self.player.day += 1;
+                        //self.allComments = vec![];
+                    } else {
+                        self.uibuttons[10].action = false;
+                        self.sns.cActive = false;
+                        let mut cmd = PostComment { 
                         ChangeComm: self.allComments.clone(), 
                         PostID: self.sns.posts.clone(), 
                         PostPage: self.postPage,
                         PostComm: self.postID};
-                    cmd.exec();
+                        cmd.exec();
+                    }
                     self.comment.clear();
                 }
 
@@ -508,19 +521,25 @@ impl GameState {
         if keyboard.escape().just_pressed() {
             self.comment.clear();
             self.allComments = vec![];
-            self.sns.cActive = false;
-            self.uibuttons[10].action =false;
-            let cmd = Reset {
-                PostID: self.sns.posts.clone(),
-                PostPage: self.postPage,
-                PostComm: self.postID};
-            cmd.exec();
+            if self.sns.cActive {
+                self.sns.cActive = false;
+                self.uibuttons[10].action =false;
+                let cmd = Reset {
+                    PostID: self.sns.posts.clone(),
+                    PostPage: self.postPage,
+                    PostComm: self.postID};
+                cmd.exec();
+            }
         }
         // Remove the last character when backspace is pressed
         if keyboard.backspace().just_pressed() {
             self.comment.pop();
         }
-        text!(&self.comment, x = self.uibuttons[10].hitbox.0 + 2, y = self.uibuttons[10].hitbox.1 + 1, color = 0x22406eff, font = "FIVEPIXELS");
+        if self.introType {
+            text!(&self.comment, x = self.uibuttons[12].hitbox.0 + 2, y = self.uibuttons[12].hitbox.1 + 1, color = 0x22406eff, font = "FIVEPIXELS");
+        } else {
+            text!(&self.comment, x = self.uibuttons[10].hitbox.0 + 2, y = self.uibuttons[10].hitbox.1 + 1, color = 0x22406eff, font = "FIVEPIXELS");
+        }
     }
 
     //Showing all comments in post
