@@ -8,7 +8,8 @@ pub struct TextBox {
     pub current_line: usize,
     pub speaking: bool,
     pub animdone: bool,
-    pub cgshowing: bool
+    pub cgshowing: bool,
+    pub commandshowing: bool
 }
 impl TextBox {
     pub fn new() -> Self {
@@ -17,7 +18,8 @@ impl TextBox {
             current_line: 0,
             speaking: false,
             animdone: true,
-            cgshowing: false
+            cgshowing: false,
+            commandshowing: false
         }
     }
 
@@ -50,7 +52,7 @@ impl TextBox {
     }
 
     pub fn drawText(&mut self, time: usize) {        
-        let text;
+        let text ;
 
         if self.animdone == false {
             text = "";
@@ -61,20 +63,21 @@ impl TextBox {
             
         if self.speaking == true {
             sprite!("speechbubble", x = 256, y= 114);
-            text_box!{
-                text,
-                font = "FIVEPIXELS",
-                color = 0xfae3deff,
-                fixed = true,
-                width = 200,
-                height = 35,
-                x =  21,
-                y = 118,  
-                //end = time/5         
-            }
+                text_box!{
+                    text,
+                    font = "FIVEPIXELS",
+                    color = 0xfae3deff,
+                    fixed = true,
+                    width = 200,
+                    height = 35,
+                    x =  21,
+                    y = 118,  
+                    //end = time/5         
+                }
+            self.pipiCG();
             self.pipiAnim();
             self.assessLine();
-            self.pipiCG();
+            
             
         }
     }
@@ -114,9 +117,13 @@ impl TextBox {
     pub fn pipiCG(&mut self) {
         if self.lines[self.current_line] == "--cg" {
             self.cgshowing = true;
+            // self.commandshowing = true;
+            self.current_line += 1;
         } else if self.lines[self.current_line] == "--cgdone" {
             self.cgshowing = false;
-        } 
+        } else {
+            self.commandshowing = false;
+        }
 
         if self.cgshowing {
             sprite!("ending", x = 240, y = 0);

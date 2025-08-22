@@ -59,7 +59,7 @@ impl ActionButton {
     }
 
     //summons pipi (draw function only used by pipi)
-    pub fn summon(&mut self, hunger: u32, cleanliness: u32, day: i32, time: i32, timepass: usize) {
+    pub fn summon(&mut self, hunger: u32, cleanliness: u32, day: i32, time: i32, speaking: bool, timepass: usize) {
         let selected = self.pipiselect();
         let anim = animation::get("PIPI");
 
@@ -76,18 +76,16 @@ impl ActionButton {
         }
        
         
-        
-        if hunger <= 1 && cleanliness <= 1{
-            sprite!("PIPI#HAPPY_hungrydirty", x = self.hitbox.0, y = self.hitbox.1
-        );
+        if day == 12 {
+            sprite!("PIPI#STAND_good", x = self.hitbox.0, y = self.hitbox.1);
+        } else if hunger <= 1 && cleanliness <= 1{
+            sprite!("PIPI#HAPPY_hungrydirty", x = self.hitbox.0, y = self.hitbox.1);
         } else if hunger <= 1 {
-            sprite!("PIPI#HAPPY_hungry", x = self.hitbox.0, y = self.hitbox.1
-        );
+            sprite!("PIPI#HAPPY_hungry", x = self.hitbox.0, y = self.hitbox.1);
         } else if cleanliness <= 1 {
-            sprite!("PIPI#HAPPY_dirty", x = self.hitbox.0, y = self.hitbox.1
-        );
+            sprite!("PIPI#HAPPY_dirty", x = self.hitbox.0, y = self.hitbox.1);
         } else {
-            if time == 3 {
+            if time == 3 || speaking == true {
                 sprite!(
                 animation_key = "PIPI",
                 default_sprite = "PIPI#HAPPY_good", x = self.hitbox.0, y = self.hitbox.1

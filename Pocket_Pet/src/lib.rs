@@ -204,7 +204,7 @@ impl GameState {
 
 //Summon Pipi    
     if self.textbox.animdone == true {
-        self.uibuttons[5].summon(self.player.hunger, self.player.cleanliness, self.player.day, self.player.activity, self.timepass);
+        self.uibuttons[5].summon(self.player.hunger, self.player.cleanliness, self.player.day, self.player.activity, self.textbox.speaking, self.timepass);
     }
 
 //Screen animations
@@ -248,51 +248,15 @@ impl GameState {
         }
     sprite!(animation_key = "screenanim", default_sprite = "screen_anims#empty", x = 264, y = 19);
     
-    let t = time::tick();
-    
-    let cUp = animation::get("cUp");
-    let aUp = animation::get("aUp");
 
-    if self.upAnim[0] {
-        let hUp = animation::get("hUp");
-        hUp.use_sprite("hungerup");
-        if t >= self.timeStamp + 10 {
-            sprite!(animation_key = "hUp", x = 318, y = 34);
-            hUp.set_repeat(1);
-        }
-        if t == self.timeStamp + 72 {
-            hUp.restart();
-            self.upAnim[0] = false;
 
-        }      
-    }
-    if self.upAnim[1] { 
-        if t >= self.timeStamp + 19 {
-            cUp.use_sprite("cleanlinessup");
-            sprite!(animation_key = "cUp", x = 321, y = 43);
-            cUp.set_repeat(1);
-            cUp.set_fill_forwards(true);
-        }
-        if t == self.timeStamp + 83 {
-            self.upAnim[1] = false;
-            cUp.restart();
-        }   
-    }
-    if self.upAnim[2] { 
-        if t >= self.timeStamp + 42 {
-            aUp.use_sprite("affectionup");
-            sprite!(animation_key = "aUp", x = 390, y = 38);
-            aUp.set_repeat(1);
-        }
-        if t == self.timeStamp + 100 {
-            self.upAnim[2] = false;
-            aUp.restart();
-        } 
-    }
+
 
     //sets the select to the location that is being highlighted either by mouse or keyboard
     //goes through for loop to see which button was pressed
     // Draw
+    let t = time::tick();  
+    
     let can_click = anim.sprite_name() == "screen_anims#empty";   
     for n in 0..self.uibuttons.len() {
         self.select = self.uibuttons[n].check(self.select);
@@ -427,6 +391,67 @@ impl GameState {
             self.uibuttons[6].sns_notif(self.unread);
         }
     }
+
+
+    //status animations  
+    let hungerup = animation::get("hungerup");
+    let cleanlinessup = animation::get("cleanlinessup");
+    let affectionup = animation::get("affectionup");
+    //let upanim = animation::get("upanim");
+
+    if self.upAnim[0] {        
+        if t >= self.timeStamp + 10 {
+            self.upAnim[1] = false;
+            self.upAnim[2] = false;
+            hungerup.use_sprite("hungerup");
+            hungerup.set_repeat(1);
+            hungerup.set_fill_forwards(true);
+            if can_click && self.upAnim[1] == false && self.upAnim[2]  == false {
+                sprite!(animation_key = "hungerup", default_sprite = "up_empty", x = 322, y = 43);
+            }
+        }
+        if t == self.timeStamp + 72 {
+            self.upAnim[0] = false;
+        }
+             
+    }
+    if self.upAnim[1] { 
+        if t >= self.timeStamp + 19 {
+            self.upAnim[0] = false;
+            self.upAnim[2] = false;
+            cleanlinessup.use_sprite("cleanlinessup");
+            cleanlinessup.set_repeat(1);
+            cleanlinessup.set_fill_forwards(true);
+            if can_click && self.upAnim[0] == false && self.upAnim[2]  == false {
+                sprite!(animation_key = "cleanlinessup", default_sprite = "up_empty", x = 322, y = 43);
+            }
+        }
+        if t == self.timeStamp + 83 {
+            self.upAnim[1] = false;
+            
+        }   
+    }
+    if self.upAnim[2] { 
+        if t >= self.timeStamp + 42 {
+            self.upAnim[0] = false;
+            self.upAnim[1] = false;
+            affectionup.use_sprite("affectionup");
+            affectionup.set_repeat(1);
+            affectionup.set_fill_forwards(true);
+            if can_click && self.upAnim[0] == false && self.upAnim[1]  == false {
+                sprite!(animation_key = "affectionup", default_sprite = "up_empty", x = 322, y = 43);
+            }
+            
+        }
+        if t == self.timeStamp + 100 {
+            self.upAnim[2] = false;
+            
+        } 
+    }
+
+    
+
+
     //intro draw
     sprite!("titlescreen", x = 240, y = 160);
     self.uibuttons[12].draw();
@@ -598,7 +623,6 @@ impl GameState {
         }
     }
 
-    text!("{:?}", self.textbox.animdone; x = 240, y = 10);
     //Showing all comments in post
     let mut movingY = 27;
     for n in 0..self.allComments.len() {
