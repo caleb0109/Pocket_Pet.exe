@@ -27,8 +27,6 @@ impl TextBox {
                 let n = self.lines.iter().position(|line| line == "--day1");
                 self.current_line = n.unwrap_or(0) + 1;
                 self.speaking = true;
-                audio::play("pipiDefault");
-                audio::set_volume("pipiDefault", 0.2);
             }
             2 => {
                 let n = self.lines.iter().position(|line| line == "--day2");
@@ -40,10 +38,12 @@ impl TextBox {
                 self.current_line = n.unwrap_or(0) + 1;
                 self.speaking = true;
             }
-            12 => {
-                let n = self.lines.iter().position(|line| line == "--day12");
+            14 => {
+                let n = self.lines.iter().position(|line| line == "--day14");
                 self.current_line = n.unwrap_or(0) + 1;
                 self.speaking = true;
+                audio::play("pipiEvil");
+                audio::set_volume("pipiEvil", 0.1);
             }
             _ => {}
         }       
@@ -124,6 +124,7 @@ impl TextBox {
         
     }
 
+    //affection max ending lines used when conditions met
     pub fn affectionMaxEnd(&mut self) {
         let n = self.lines.iter().position(|line| line == "--affectionmax");
         self.current_line = n.unwrap_or(0) + 1;

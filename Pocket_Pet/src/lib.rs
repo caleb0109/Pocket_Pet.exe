@@ -20,7 +20,7 @@ use turbo::os::server::*;
 #[turbo::game]
 struct GameState{
     screen: u8,
-    uibuttons: [ActionButton; 13],
+    uibuttons: [ActionButton; 14],
     player: Player,
     sns: SocialMedia,
     textbox: TextBox,
@@ -37,7 +37,9 @@ struct GameState{
     timepass: usize,
     introType: bool,
     repeatText: bool,
-    upAnim: [bool; 3]
+    upAnim: [bool; 3],
+    commEmpty: bool,
+    changeSong: bool
 } 
 
 
@@ -58,7 +60,8 @@ impl GameState {
                 ActionButton::new("arrowdown", (18, 141, 11, 14), false),
                 ActionButton::new("entercomment", (-196, 136, 156, 19), false),
                 ActionButton::new("sns", (-22, 71, 19, 19), false),
-                ActionButton::new("titlescreen_text", (316, 252, 156, 19), false)
+                ActionButton::new("titlescreen_text", (316, 252, 84, 19), false),
+                ActionButton::new("titlescreen_enter", (404, 252, 10, 10), false)
             ],
             player: Player::new(),
             sns: SocialMedia::new(),
@@ -71,7 +74,7 @@ impl GameState {
                 ("main_screen_change".to_string(), Tween::new(0.)),
             ]),
             cameraPos: (360, 240),
-            comment: "".to_string(),
+            comment: "Player".to_string(),
             allComments: vec![],
             postID: 0,
             postPage: 0,
@@ -80,14 +83,26 @@ impl GameState {
             introType: false,
             repeatText: false,
             upAnim: [false, false, false],
+            commEmpty: false,
+            changeSong: false
         }
     }
     pub fn update(&mut self) {
 
-    if !audio::is_playing("pipiDefault") {
+    if audio::is_playing("pipiEvil") {
+        self.changeSong = true;
+        audio::stop("pipiDefault");
+    }
+    if self.changeSong {
+        if !audio::is_playing("pipiEvil") {
+            audio::play("pipiEvil");
+            audio::set_volume("pipiEvil", 0.1);
+        }
+    } else if !audio::is_playing("pipiDefault") {
         audio::play("pipiDefault");
-        audio::set_volume("pipiDefault", 0.2);
+        audio::set_volume("pipiDefault", 0.1);
     } 
+    
     
     camera::set_xy(self.cameraPos.0,self.cameraPos.1);
     if self.cameraPos.0 == 120 { 
@@ -271,7 +286,7 @@ impl GameState {
             cUp.use_sprite("cleanlinessup");
             sprite!(animation_key = "cUp", x = 321, y = 43);
             cUp.set_repeat(1);
-            cUp.set_fill_forwards(true);
+            //cUp.set_fill_forwards(true);
         }
         if t == self.timeStamp + 83 {
             self.upAnim[1] = false;
@@ -292,9 +307,12 @@ impl GameState {
 
     //sets the select to the location that is being highlighted either by mouse or keyboard
     //goes through for loop to see which button was pressed
-    // Draw
+    // Draws at the end of the loop
     let can_click = anim.sprite_name() == "screen_anims#empty";   
     for n in 0..self.uibuttons.len() {
+        if self.player.day == 0 && n != 12 && n != 13{
+            continue;
+        }
         self.select = self.uibuttons[n].check(self.select);
         if self.uibuttons[n].action && !can_click {
             self.uibuttons[n].action = false;
@@ -390,11 +408,33 @@ impl GameState {
                 }
                 11 => {
                     self.uibuttons[11].action = false;
+                    self.uibuttons[10].action = false;
+                    self.sns.cActive = false;
                     self.cameraPos.0 = 120;
                     self.select = (218, 71);
                 }
                 12 => {
                     self.introType = true;
+                }
+                13 => {
+                    //checks if theres anything in comment,
+                    //if there is and introtype is true, then
+                    //it sends the username through and proceeds
+                    //to next day
+                    if self.comment.len() == 0 {
+                        self.commEmpty = true;
+                    } else {
+                        if self.introType {
+                            self.commEmpty = false;
+                            self.uibuttons[12].action = false;
+                            self.player.name = self.comment.clone();
+                            self.introType = false;
+                            self.cameraPos.1 = 80;
+                            self.player.day += 1;
+                            self.textbox.changeDay(self.player.day);
+                        }
+                    }
+                    self.uibuttons[13].action = false;
                 }
                 _ => {
                     text!("didn't work", x = 30, y = 40);
@@ -430,7 +470,7 @@ impl GameState {
     //intro draw
     sprite!("titlescreen", x = 240, y = 160);
     self.uibuttons[12].draw();
-    
+    //self.uibuttons[13].tempDraw();
     
     //pay deduction
     if self.player.hunger == 0 || self.player.cleanliness == 0 {
@@ -539,41 +579,61 @@ impl GameState {
             match c {
                 // Clear the buffer when Enter is pressed
                 '\n' => {
-                    self.allComments.push(self.comment.to_string());
-                    if self.introType {
-                        self.uibuttons[12].action = false;
-                        self.player.name = self.comment.clone();
-                        self.introType = false;
-                        self.cameraPos.1 = 80;
-                        self.player.day += 1;
-                        self.textbox.changeDay(self.player.day);
-                        //self.allComments = vec![];
+                    audio::play("keystroke");
+                    audio::set_volume("keystroke", 0.2);
+                    if self.comment.len() == 0 {
+                        self.commEmpty = true;
                     } else {
-                        self.uibuttons[10].action = false;
-                        self.sns.cActive = false;
-                        let mut cmd = PostComment { 
-                        ChangeComm: self.allComments.clone(), 
-                        PostID: self.sns.posts.clone(), 
-                        PostPage: self.postPage,
-                        PostComm: self.postID};
-                        cmd.exec();
+                        if self.introType {
+                            self.commEmpty = false;
+                            self.uibuttons[12].action = false;
+                            self.player.name = self.comment.clone();
+                            self.introType = false;
+                            self.cameraPos.1 = 80;
+                            self.player.day += 1;
+                            self.textbox.changeDay(self.player.day);
+                            //self.allComments = vec![];
+                        } else {
+                            self.allComments.push(self.comment.to_string());
+                            self.uibuttons[10].action = false;
+                            self.sns.cActive = false;
+                            let mut cmd = PostComment { 
+                            ChangeComm: self.allComments.clone(), 
+                            PostID: self.sns.posts.clone(), 
+                            PostPage: self.postPage,
+                            PostComm: self.postID};
+                            cmd.exec();
+                        }
+                        self.comment.clear();
                     }
-                    self.comment.clear();
                 }
 
                 // Append all other chars to the buffer
                 ch => {
-                    if self.comment.len() == 25 {
-                        self.comment.pop();
+                    audio::play("keystroke");
+                    audio::set_volume("keystroke", 0.1);
+                    if self.introType {
+                        if self.comment.len() == 15 {
+                            self.comment.pop();
+                        } else {
+                            self.comment.push(ch);
+                        }
                     } else {
-                        self.comment.push(ch);
+                        if self.comment.len() == 25 {
+                            self.comment.pop();
+                        } else {
+                            self.comment.push(ch);
+                        }
                     }
+                    
                 }
             }
         }
  
         if keyboard.escape().just_pressed() {
             self.comment.clear();
+            audio::play("keystroke");
+            audio::set_volume("keystroke", 0.1);
             self.allComments = vec![];
             if self.sns.cActive {
                 self.sns.cActive = false;
@@ -588,17 +648,25 @@ impl GameState {
         // Remove the last character when backspace is pressed
         if keyboard.backspace().just_pressed() {
             self.comment.pop();
+            audio::play("keystroke");
+            audio::set_volume("keystroke", 0.1);
         }
+        //if its the intro, then it'll print out the typed word in proper position and vice versa with cActive
         if self.introType {
             text!("{}|", &self.comment; x = self.uibuttons[12].hitbox.0 + 2, y = self.uibuttons[12].hitbox.1 + 1, color = 0x22406eff, font = "FIVEPIXELS", opacity = if t % 32 < 16 { 1. } else { 0. });
             text!(&self.comment, x = self.uibuttons[12].hitbox.0 + 2, y = self.uibuttons[12].hitbox.1 + 1, color = 0x22406eff, font = "FIVEPIXELS");
+            if self.commEmpty {
+                text!("You must have 1 character", x = self.uibuttons[12].hitbox.0 + 2, y = self.uibuttons[12].hitbox.1 + 11, color = 0x22406eff, font = "FIVEPIXELS");
+            }
         } else {
             text!("{}|", &self.comment; x = self.uibuttons[10].hitbox.0 + 2, y = self.uibuttons[10].hitbox.1 + 1, color = 0x22406eff, font = "FIVEPIXELS", opacity = if t % 32 < 16 { 1. } else { 0. });
             text!(&self.comment, x = self.uibuttons[10].hitbox.0 + 2, y = self.uibuttons[10].hitbox.1 + 1, color = 0x22406eff, font = "FIVEPIXELS");
+            if self.commEmpty {
+                text!("You must have 1 character", x = self.uibuttons[10].hitbox.0 + 2, y = self.uibuttons[10].hitbox.1 + 11, color = 0x22406eff, font = "FIVEPIXELS");
+            }
         }
     }
 
-    text!("{:?}", self.textbox.animdone; x = 240, y = 10);
     //Showing all comments in post
     let mut movingY = 27;
     for n in 0..self.allComments.len() {
